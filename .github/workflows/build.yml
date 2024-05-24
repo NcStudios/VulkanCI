@@ -83,6 +83,7 @@ jobs:
           cmake -S Vulkan-ValidationLayers -B Vulkan-ValidationLayers/build -DUPDATE_DEPS=ON -DCMAKE_BUILD_TYPE=Release
           cmake --build Vulkan-ValidationLayers/build --config Release
           cmake --install Vulkan-ValidationLayers/build --prefix ${{ env.SDK_PATH }}
+          cp Vulkan-ValidationLayers/LICENSE.txt ${{ env.SDK_PATH }}
 
       - name: Checkout Swiftshader
         uses: actions/checkout@v4
@@ -98,7 +99,7 @@ jobs:
           cmake --build Swiftshader/build_out --target vk_swiftshader --config Release
           mkdir ${{ env.SDK_PATH }}/swiftshader
           cp Swiftshader/build_out/${{ matrix.shortName }}/${{ matrix.swiftshaderLibName }} ${{ env.SDK_PATH }}/swiftshader
-          cp Swiftshader/build_out/${{ matrix.shortName }}/LICENSE.txt ${{ env.SDK_PATH }}/swiftshader
+          cp Swiftshader/LICENSE.txt ${{ env.SDK_PATH }}/swiftshader
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
