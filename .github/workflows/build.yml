@@ -1,0 +1,99 @@
+name: Build
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [ vnext ]
+
+env:
+  sdkVersion: 1.3.261.1
+
+jobs:
+  Build:
+    strategy:
+      matrix:
+        os: [windows-2022, ubuntu-24.04]
+        include:
+          - os: windows-2022
+            generator: "Visual Studio 17 2022"
+            shortName: Windows
+          - os: ubuntu-24.04
+            shortName: Linux
+            generator: "Unix Makefiles"
+            cmakeEnv: "CXX=/usr/bin/g++-14"
+
+    name: ${{ matrix.shortName }}
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Setup MSVC
+        if: ${{ matrix.shortName == 'Windows' }}
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Install dependencies
+        if: ${{ matrix.shortName == 'Linux' }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwayland-dev
+
+      - name: Set up SDK path
+        run: echo "SDK_PATH=VulkanSDK/${{ env.sdk_version }}" >> $GITHUB_ENV
+
+      - name: Checkout Vulkan-Headers
+        uses: actions/checkout@v4
+        with:
+          repository: KhronosGroup/Vulkan-Headers
+          ref: 'sdk-${{ env.sdkVersion }}'
+          path: 'Vulkan-Headers'
+
+      - name: Build Vulkan-Headers
+        shell: bash
+        run: |
+          cmake -S Vulkan-Headers -B Vulkan-Headers/build
+          cmake --install Vulkan-Headers/build --prefix ${{ env.sdkPath }}
+
+      - name: Checkout Vulkan-Loader
+        uses: actions/checkout@v4
+        with:
+          repository: KhronosGroup/Vulkan-Loader
+          ref: 'sdk-${{ env.sdkVersion }}'
+          path: 'Vulkan-Loader'
+
+      - name: Build Vulkan-Loader
+        shell: bash
+        run: |
+          cmake -S Vulkan-Loader -B Vulkan-Loader/build -DVULKAN_HEADERS_INSTALL_DIR=${{ env.sdkPath }} -DLOADER_USE_UNSAFE_FILE_SEARCH=ON -DCMAKE_BUILD_TYPE=Release
+          cmake --build Vulkan-Loader/build --config Release
+          cmake --install Vulkan-Loader/build --prefix ${{ env.sdkPath }}
+
+      - name: Checkout Vulkan-ValidationLayers
+        uses: actions/checkout@v4
+        with:
+          repository: KhronosGroup/Vulkan-ValidationLayers
+          ref: 'sdk-${{ env.sdkVersion }}'
+          path: 'Vulkan-ValidationLayers'
+
+      - name: Build Vulkan-ValidationLayers
+        shell: bash
+        run: |
+          cmake -S Vulkan-ValidationLayers -B Vulkan-ValidationLayers/build -DUPDATE_DEPS=ON -DCMAKE_BUILD_TYPE=Release
+          cmake --build Vulkan-ValidationLayers/build --config Release
+          cmake --install Vulkan-ValidationLayers/build --prefix ${{ env.sdkPath }}
+
+      - name: Checkout Swiftshader
+        uses: actions/checkout@v4
+        with:
+          repository: NcStudios/swiftshader
+          ref: 'release'
+          path: 'Swiftshader'
+          submodules: 'recursive'
+
+      - name: Build Swiftshader
+        run: |
+          cmake -S ./ -B Swiftshader/build_out -DCMAKE_BUILD_TYPE=Release
+          cmake --build Swiftshader/build_out --target vk_swiftshader --config Release
+          cmake --install Swiftshader/build_out --prefix ${{ env.sdkPath }}
+
+      - name: Print
+        shell: pwsh
+        run: ls -R ${{ env.sdkPath }}
