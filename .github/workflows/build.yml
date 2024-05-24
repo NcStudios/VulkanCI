@@ -15,12 +15,11 @@ jobs:
         os: [windows-2022, ubuntu-24.04]
         include:
           - os: windows-2022
-            generator: "Visual Studio 17 2022"
             shortName: Windows
+            artifactName: vulkanCI-windows-x64
           - os: ubuntu-24.04
             shortName: Linux
-            generator: "Unix Makefiles"
-            cmakeEnv: "CXX=/usr/bin/g++-14"
+            artifactName: vulkanCI-ubuntu24.04-x64
 
     name: ${{ matrix.shortName }}
     runs-on: ${{ matrix.os }}
@@ -95,8 +94,15 @@ jobs:
         run: |
           cmake -S Swiftshader -B Swiftshader/build_out -DCMAKE_BUILD_TYPE=Release
           cmake --build Swiftshader/build_out --target vk_swiftshader --config Release
-          cmake --install Swiftshader/build_out --prefix ${{ env.SDK_PATH }}
 
       - name: Print
         shell: pwsh
         run: ls -R ${{ env.SDK_PATH }}
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifactName }}
+          path: |
+            VulkanSDK/
+            Swiftshader/build_out/${{ matrix.shortName }}
