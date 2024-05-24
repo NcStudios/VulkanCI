@@ -34,7 +34,7 @@ jobs:
         if: ${{ matrix.shortName == 'Linux' }}
         run: |
           sudo apt-get update
-          sudo apt-get install -y libwayland-dev
+          sudo apt-get install -y xorg-dev libwayland-dev
 
       - name: Set up SDK path
         run: echo "SDK_PATH=${{ github.workspace }}/VulkanSDK/${{ env.SDK_VERSION }}" >> $GITHUB_ENV
