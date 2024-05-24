@@ -39,8 +39,8 @@ jobs:
       - name: Set up SDK path
         shell: bash
         run: |
-          NORMALIZED_PATH=$(echo ${{ github.workspace }} | tr '\\' '/')
-          echo "SDK_PATH=$NORMALIZED_PATH/VulkanSDK/${{ env.SDK_VERSION }}" >> $GITHUB_ENV
+          ROOT_PATH=${{ github.workspace }}
+          echo "SDK_PATH=${ROOT_PATH//\\//}/VulkanSDK/${{ env.SDK_VERSION }}" >> $GITHUB_ENV
 
       - name: Checkout Vulkan-Headers
         uses: actions/checkout@v4
