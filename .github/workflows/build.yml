@@ -16,9 +16,11 @@ jobs:
         include:
           - os: windows-2022
             shortName: Windows
+            swiftshaderLibName: vk_swiftshader.dll
             artifactName: vulkanCI-windows-x64
           - os: ubuntu-24.04
             shortName: Linux
+            swiftshaderLibName: libvk_swiftshader.so
             artifactName: vulkanCI-ubuntu24.04-x64
 
     name: ${{ matrix.shortName }}
@@ -94,15 +96,12 @@ jobs:
         run: |
           cmake -S Swiftshader -B Swiftshader/build_out -DCMAKE_BUILD_TYPE=Release
           cmake --build Swiftshader/build_out --target vk_swiftshader --config Release
-
-      - name: Print
-        shell: pwsh
-        run: ls -R ${{ env.SDK_PATH }}
+          mkdir ${{ env.SDK_PATH }}/swiftshader
+          cp Swiftshader/build_out/${{ matrix.shortName }}/${{ matrix.swiftshaderLibName }} ${{ env.SDK_PATH }}/swiftshader
+          cp Swiftshader/build_out/${{ matrix.shortName }}/vk_swiftshader_icd.json ${{ env.SDK_PATH }}/swiftshader
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifactName }}
-          path: |
-            VulkanSDK/
-            Swiftshader/build_out/${{ matrix.shortName }}
+          path: VulkanSDK/
