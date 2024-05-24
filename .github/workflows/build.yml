@@ -40,10 +40,7 @@ jobs:
         shell: bash
         run: |
           ROOT_PATH='${{ github.workspace }}'
-          NORMALIZED_PATH='${ROOT_PATH//\\//}'
-          echo $ROOT_PATH
-          echo $NORMALIZED_PATH
-          echo "SDK_PATH=$NORMALIZED_PATH/VulkanSDK/${{ env.SDK_VERSION }}" >> $GITHUB_ENV
+          echo "SDK_PATH=${ROOT_PATH//\\//}/VulkanSDK/${{ env.SDK_VERSION }}" >> $GITHUB_ENV
 
       - name: Checkout Vulkan-Headers
         uses: actions/checkout@v4
