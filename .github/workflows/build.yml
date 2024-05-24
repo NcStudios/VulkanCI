@@ -37,7 +37,7 @@ jobs:
           sudo apt-get install -y libwayland-dev
 
       - name: Set up SDK path
-        run: echo "SDK_PATH=VulkanSDK/${{ env.sdk_version }}" >> $GITHUB_ENV
+        run: echo "SDK_PATH=VulkanSDK/${{ env.SDK_VERSION }}" >> $GITHUB_ENV
 
       - name: Checkout Vulkan-Headers
         uses: actions/checkout@v4
