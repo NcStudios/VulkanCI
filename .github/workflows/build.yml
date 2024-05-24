@@ -98,7 +98,7 @@ jobs:
           cmake --build Swiftshader/build_out --target vk_swiftshader --config Release
           mkdir ${{ env.SDK_PATH }}/swiftshader
           cp Swiftshader/build_out/${{ matrix.shortName }}/${{ matrix.swiftshaderLibName }} ${{ env.SDK_PATH }}/swiftshader
-          cp Swiftshader/build_out/${{ matrix.shortName }}/vk_swiftshader_icd.json ${{ env.SDK_PATH }}/swiftshader
+          cp Swiftshader/build_out/${{ matrix.shortName }}/LICENSE.txt ${{ env.SDK_PATH }}/swiftshader
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
