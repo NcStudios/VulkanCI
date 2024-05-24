@@ -93,7 +93,7 @@ jobs:
 
       - name: Build Swiftshader
         run: |
-          cmake -S ./ -B Swiftshader/build_out -DCMAKE_BUILD_TYPE=Release
+          cmake -S Swiftshader -B Swiftshader/build_out -DCMAKE_BUILD_TYPE=Release
           cmake --build Swiftshader/build_out --target vk_swiftshader --config Release
           cmake --install Swiftshader/build_out --prefix ${{ env.SDK_PATH }}
 
