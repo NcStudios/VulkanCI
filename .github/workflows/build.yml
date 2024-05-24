@@ -37,6 +37,7 @@ jobs:
           sudo apt-get install -y xorg-dev libwayland-dev
 
       - name: Set up SDK path
+        shell: bash
         run: echo "SDK_PATH=${{ github.workspace }}/VulkanSDK/${{ env.SDK_VERSION }}" >> $GITHUB_ENV
 
       - name: Checkout Vulkan-Headers
