@@ -6,7 +6,7 @@ on:
     branches: [ vnext ]
 
 env:
-  sdkVersion: 1.3.261.1
+  SDK_VERSION: 1.3.261.1
 
 jobs:
   Build:
@@ -15,12 +15,13 @@ jobs:
         os: [windows-2022, ubuntu-24.04]
         include:
           - os: windows-2022
-            generator: "Visual Studio 17 2022"
             shortName: Windows
+            swiftshaderLibName: vk_swiftshader.dll
+            artifactName: vulkanCI-windows-x64
           - os: ubuntu-24.04
             shortName: Linux
-            generator: "Unix Makefiles"
-            cmakeEnv: "CXX=/usr/bin/g++-14"
+            swiftshaderLibName: libvk_swiftshader.so
+            artifactName: vulkanCI-ubuntu24.04-x64
 
     name: ${{ matrix.shortName }}
     runs-on: ${{ matrix.os }}
@@ -34,43 +35,46 @@ jobs:
         if: ${{ matrix.shortName == 'Linux' }}
         run: |
           sudo apt-get update
-          sudo apt-get install -y libwayland-dev
+          sudo apt-get install -y xorg-dev libwayland-dev
 
       - name: Set up SDK path
-        run: echo "SDK_PATH=VulkanSDK/${{ env.sdk_version }}" >> $GITHUB_ENV
+        shell: bash
+        run: |
+          ROOT_PATH='${{ github.workspace }}'
+          echo "SDK_PATH=${ROOT_PATH//\\//}/VulkanSDK/${{ env.SDK_VERSION }}" >> $GITHUB_ENV
 
       - name: Checkout Vulkan-Headers
         uses: actions/checkout@v4
         with:
           repository: KhronosGroup/Vulkan-Headers
-          ref: 'sdk-${{ env.sdkVersion }}'
+          ref: 'sdk-${{ env.SDK_VERSION }}'
           path: 'Vulkan-Headers'
 
       - name: Build Vulkan-Headers
         shell: bash
         run: |
           cmake -S Vulkan-Headers -B Vulkan-Headers/build
-          cmake --install Vulkan-Headers/build --prefix ${{ env.sdkPath }}
+          cmake --install Vulkan-Headers/build --prefix ${{ env.SDK_PATH }}
 
       - name: Checkout Vulkan-Loader
         uses: actions/checkout@v4
         with:
           repository: KhronosGroup/Vulkan-Loader
-          ref: 'sdk-${{ env.sdkVersion }}'
+          ref: 'sdk-${{ env.SDK_VERSION }}'
           path: 'Vulkan-Loader'
 
       - name: Build Vulkan-Loader
         shell: bash
         run: |
-          cmake -S Vulkan-Loader -B Vulkan-Loader/build -DVULKAN_HEADERS_INSTALL_DIR=${{ env.sdkPath }} -DLOADER_USE_UNSAFE_FILE_SEARCH=ON -DCMAKE_BUILD_TYPE=Release
+          cmake -S Vulkan-Loader -B Vulkan-Loader/build -DVULKAN_HEADERS_INSTALL_DIR=${{ env.SDK_PATH }} -DLOADER_USE_UNSAFE_FILE_SEARCH=ON -DCMAKE_BUILD_TYPE=Release
           cmake --build Vulkan-Loader/build --config Release
-          cmake --install Vulkan-Loader/build --prefix ${{ env.sdkPath }}
+          cmake --install Vulkan-Loader/build --prefix ${{ env.SDK_PATH }}
 
       - name: Checkout Vulkan-ValidationLayers
         uses: actions/checkout@v4
         with:
           repository: KhronosGroup/Vulkan-ValidationLayers
-          ref: 'sdk-${{ env.sdkVersion }}'
+          ref: 'sdk-${{ env.SDK_VERSION }}'
           path: 'Vulkan-ValidationLayers'
 
       - name: Build Vulkan-ValidationLayers
@@ -78,7 +82,8 @@ jobs:
         run: |
           cmake -S Vulkan-ValidationLayers -B Vulkan-ValidationLayers/build -DUPDATE_DEPS=ON -DCMAKE_BUILD_TYPE=Release
           cmake --build Vulkan-ValidationLayers/build --config Release
-          cmake --install Vulkan-ValidationLayers/build --prefix ${{ env.sdkPath }}
+          cmake --install Vulkan-ValidationLayers/build --prefix ${{ env.SDK_PATH }}
+          cp Vulkan-ValidationLayers/LICENSE.txt ${{ env.SDK_PATH }}
 
       - name: Checkout Swiftshader
         uses: actions/checkout@v4
@@ -90,10 +95,14 @@ jobs:
 
       - name: Build Swiftshader
         run: |
-          cmake -S ./ -B Swiftshader/build_out -DCMAKE_BUILD_TYPE=Release
+          cmake -S Swiftshader -B Swiftshader/build_out -DCMAKE_BUILD_TYPE=Release
           cmake --build Swiftshader/build_out --target vk_swiftshader --config Release
-          cmake --install Swiftshader/build_out --prefix ${{ env.sdkPath }}
+          mkdir ${{ env.SDK_PATH }}/swiftshader
+          cp Swiftshader/build_out/${{ matrix.shortName }}/${{ matrix.swiftshaderLibName }} ${{ env.SDK_PATH }}/swiftshader
+          cp Swiftshader/LICENSE.txt ${{ env.SDK_PATH }}/swiftshader
 
-      - name: Print
-        shell: pwsh
-        run: ls -R ${{ env.sdkPath }}
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifactName }}
+          path: VulkanSDK
