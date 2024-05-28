@@ -49,7 +49,7 @@ runs:
         echo "VULKAN_SDK_VERSION=${{ inputs.sdkVersion }}" >> "$GITHUB_ENV"
         echo "SWIFTSHADER_INSTALL_PATH=$INSTALL_PATH/swiftshader" >> "$GITHUB_ENV"
 
-        cat <<EOF > vk_swiftshader_icd.json
+        cat <<EOF > "$INSTALL_PATH/swiftshader/vk_swiftshader_icd.json"
         {
           "file_format_version": "1.0.0",
           "ICD": {
