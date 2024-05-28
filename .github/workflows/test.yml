@@ -16,7 +16,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: ./action.yml
+      - uses: action.yml
         with:
           sdkVersion: '1.3.261.1'
       - name: Test Environment
