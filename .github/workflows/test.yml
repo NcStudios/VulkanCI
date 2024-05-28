@@ -9,7 +9,7 @@ jobs:
   Build:
     strategy:
       matrix:
-        os: [windows-2022, ubuntu-24.04]
+        os: [windows-2019, windows-2022, ubuntu-20.04, ubuntu-22.04, ubuntu-24.04]
 
     name: ${{ matrix.os }}
     runs-on: ${{ matrix.os }}

@@ -1,10 +1,8 @@
 #include <vulkan/vulkan.h>
 
 #include <stdint.h>
-#include <algorithm>
 #include <array>
 #include <iostream>
-#include <ranges>
 #include <vector>
 
 constexpr auto validationLayers = std::string_view{"VK_LAYER_KHRONOS_validation"};
@@ -27,7 +25,17 @@ int main()
     vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
     auto availableLayers = std::vector<VkLayerProperties>(layerCount);
     vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
-    if (!std::ranges::contains(availableLayers, validationLayers, &VkLayerProperties::layerName))
+    auto foundValidationLayers = false;
+    for (auto layer : availableLayers)
+    {
+        if (validationLayers == layer.layerName)
+        {
+            foundValidationLayers = true;
+            break;
+        }
+    }
+
+    if (!foundValidationLayers)
     {
         std::cerr << "Failed: did not find validation layers\n";
         return 1;
@@ -59,15 +67,19 @@ int main()
 
     auto devices = std::vector<VkPhysicalDevice>(deviceCount);
     vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
-    auto deviceProperties = std::vector<VkPhysicalDeviceProperties>{};
-    std::ranges::transform(devices, std::back_inserter(deviceProperties), [](auto device)
+    auto foundSwiftShader = false;
+    for (auto device : devices)
     {
         auto properties = VkPhysicalDeviceProperties{};
         vkGetPhysicalDeviceProperties(device, &properties);
-        return properties;
-    });
+        if (swiftshaderDeviceName == properties.deviceName)
+        {
+            foundSwiftShader = true;
+            break;
+        }
+    }
 
-    if (!std::ranges::contains(deviceProperties, swiftshaderDeviceName, &VkPhysicalDeviceProperties::deviceName))
+    if (!foundSwiftShader)
     {
         std::cerr << "Failed: did not find SwiftShader\n";
         return 1;
