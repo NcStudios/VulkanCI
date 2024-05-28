@@ -18,12 +18,23 @@ outputs:
 runs:
   using: "composite"
   steps:
+    - name: Simplify Me
+      id: simplify-me
+      shell: bash
+      run: |
+        if [[ "${{ runner.os }}" == "Windows" ]]; then
+          echo "vk-ci-artifact-name=vulkanCI-windows-x64.zip" >> "$GITHUB_OUTPUT"
+        elif [[ "${{ runner.os }}" == "Linux" ]]; then
+          echo "vk-ci-artifact-name=vulkanCI-ubuntu24.04-x64.zip" >> "$GITHUB_OUTPUT"
+        fi
+
+
     - name: Download Artifacts
       uses: robinraju/release-downloader@v1.10
       with:
         repository: 'NcStudios/VulkanCI'
         tag: 'v${{ inputs.sdkVersion }}'
-        filename: 'vulkanCI-${{ runner.name }}--${{ runner.arch }}.zip'
+        filename: '${{ steps.simplify-me.vk-ci-artifact-name}}'
         out-file-path: 'VulkanSDK'
         extract: true
     - name: Setup Environment
