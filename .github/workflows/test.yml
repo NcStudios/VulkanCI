@@ -27,3 +27,6 @@ jobs:
           echo "VK_LAYER_PATH=$VK_LAYER_PATH"
           echo "SWIFTSHADER_INSTALL_PATH=$SWIFTSHADER_INSTALL_PATH"
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
+          echo "VK_DRIVER_FILES=$VK_DRIVER_FILES"
+          echo "generated driver manifest:"
+          cat $VK_DRIVER_FILES

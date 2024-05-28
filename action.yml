@@ -24,8 +24,10 @@ runs:
       run: |
         if [[ "${{ runner.os }}" == "Windows" ]]; then
           echo "vk-ci-artifact-name=vulkanCI-windows-x64.zip" >> "$GITHUB_ENV"
+          echo "vk-ci-swiftshader-lib-name=vk_swiftshader.dll" >> "$GITHUB_ENV"
         elif [[ "${{ runner.os }}" == "Linux" ]]; then
           echo "vk-ci-artifact-name=vulkanCI-ubuntu24.04-x64.zip" >> "$GITHUB_ENV"
+          echo "vk-ci-swiftshader-lib-name=libvk_swiftshader.so" >> "$GITHUB_ENV"
         fi
 
 
@@ -42,20 +44,33 @@ runs:
       shell: bash
       run: |
         INSTALL_PATH="${{ inputs.installPath }}/VulkanSDK/${{ inputs.sdkVersion }}"
+
         echo "VULKAN_SDK=$INSTALL_PATH" >> "$GITHUB_ENV"
         echo "VULKAN_SDK_VERSION=${{ inputs.sdkVersion }}" >> "$GITHUB_ENV"
         echo "SWIFTSHADER_INSTALL_PATH=$INSTALL_PATH/swiftshader" >> "$GITHUB_ENV"
 
-        echo "vk-ci-vulkan-path=$INSTALL_PATH" >> "$GITHUB_OUTPUT"
-        echo "vk-ci-swiftshader-path=$INSTALL_PATH/swiftshader" >> "$GITHUB_OUTPUT"
+        cat <<EOF > vk_swiftshader_icd.json
+        {
+          "file_format_version": "1.0.0",
+          "ICD": {
+            "library_path": "$INSTALL_PATH/swiftshader/${{ env.vk-ci-swiftshader-lib-name }}",
+            "api_version": "1.0.5"
+          }
+        }
+        EOF
+
+        export VK_DRIVER_FILES="$INSTALL_PATH/swiftshader/vk_swiftshader_icd.json"
 
         if [[ "${{ runner.os }}" == "Windows" ]]; then
           echo "VK_LAYER_PATH=$INSTALL_PATH/bin" >> "$GITHUB_ENV"
           echo "$INSTALL_PATH/bin" >> "$GITHUB_PATH"
         elif [[ "${{ runner.os }}" == "Linux" ]]; then
           echo "VK_LAYER_PATH=$INSTALL_PATH/share/vulkan/explicit_layer.d" >> "$GITHUB_ENV"
-          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$INSTALL_PATH/lib" >> "$GITHUB_ENV"
+          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$INSTALL_PATH/lib:$INSTALL_PATH/swiftshader" >> "$GITHUB_ENV"
         else
           echo "Unsupported OS: ${{ runner.os }}"
           exit 1
         fi
+
+        echo "vk-ci-vulkan-path=$INSTALL_PATH" >> "$GITHUB_OUTPUT"
+        echo "vk-ci-swiftshader-path=$INSTALL_PATH/swiftshader" >> "$GITHUB_OUTPUT"
