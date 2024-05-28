@@ -59,7 +59,7 @@ runs:
         }
         EOF
 
-        export VK_DRIVER_FILES="$INSTALL_PATH/swiftshader/vk_swiftshader_icd.json"
+        echo "VK_DRIVER_FILES=$INSTALL_PATH/swiftshader/vk_swiftshader_icd.json" >> "$GITHUB_ENV"
 
         if [[ "${{ runner.os }}" == "Windows" ]]; then
           echo "VK_LAYER_PATH=$INSTALL_PATH/bin" >> "$GITHUB_ENV"
