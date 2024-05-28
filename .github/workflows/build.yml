@@ -12,16 +12,16 @@ jobs:
   Build:
     strategy:
       matrix:
-        os: [windows-2022, ubuntu-24.04]
+        os: [windows-2022, ubuntu-20.04]
         include:
           - os: windows-2022
             shortName: Windows
             swiftshaderLibName: vk_swiftshader.dll
             artifactName: vulkanCI-windows-x64
-          - os: ubuntu-24.04
+          - os: ubuntu-20.04
             shortName: Linux
             swiftshaderLibName: libvk_swiftshader.so
-            artifactName: vulkanCI-ubuntu24.04-x64
+            artifactName: vulkanCI-ubuntu20.04-x64
 
     name: ${{ matrix.shortName }}
     runs-on: ${{ matrix.os }}
