@@ -41,13 +41,13 @@ runs:
       id: setup-environment
       shell: bash
       run: |
-        INSTALL_PATH="${{ inputs.installPath }}"/VulkanSDK/${{ inputs.sdkVersion }}"
+        INSTALL_PATH="${{ inputs.installPath }}/VulkanSDK/${{ inputs.sdkVersion }}"
         echo "VULKAN_SDK=$INSTALL_PATH" >> "$GITHUB_ENV"
-        echo "VULKAN_SDK_VERSION=${{ inputs.version }}" >> "$GITHUB_ENV"
+        echo "VULKAN_SDK_VERSION=${{ inputs.sdkVersion }}" >> "$GITHUB_ENV"
         echo "SWIFTSHADER_INSTALL_PATH=$INSTALL_PATH/swiftshader" >> "$GITHUB_ENV"
 
         echo "vk-ci-vulkan-path=$INSTALL_PATH" >> "$GITHUB_OUTPUT"
-        echo "vk-ci-swiftshader-path=$INSTALL_PATH/swiftshader" >> "$GITHUB_OUTPUT""
+        echo "vk-ci-swiftshader-path=$INSTALL_PATH/swiftshader" >> "$GITHUB_OUTPUT"
 
         if [[ "${{ runner.os }}" == "Windows" ]]; then
           echo "VK_LAYER_PATH=$INSTALL_PATH/bin" >> "$GITHUB_ENV"
