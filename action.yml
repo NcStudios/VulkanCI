@@ -22,7 +22,7 @@ runs:
       uses: robinraju/release-downloader@v1.10
       with:
         repository: 'NcStudios/VulkanCI'
-        tag: 'v${{ inputs.version }}'
+        tag: 'v${{ inputs.sdkVersion }}'
         filename: 'vulkanCI-${{ runner.name }}--${{ runner.arch }}.zip'
         out-file-path: 'VulkanSDK'
         extract: true
