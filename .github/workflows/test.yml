@@ -30,3 +30,8 @@ jobs:
           echo "VK_DRIVER_FILES=$VK_DRIVER_FILES"
           echo "generated driver manifest:"
           cat $VK_DRIVER_FILES
+
+          cd test
+          cmake -S test -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE="${{ github.workspace }}"
+          cmake --build build --config Release
+          ./vulkan-ci-test

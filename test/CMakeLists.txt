@@ -1,0 +1,7 @@
+cmake_minimum_required(VERSION 3.1)
+project(VulkanCI-Test)
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+find_package(Vulkan REQUIRED)
+add_executable(vulkan-ci-test test.cpp)
+target_link_libraries(vulkan-ci-test PRIVATE Vulkan::Vulkan)
