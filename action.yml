@@ -23,9 +23,9 @@ runs:
       shell: bash
       run: |
         if [[ "${{ runner.os }}" == "Windows" ]]; then
-          echo "vk-ci-artifact-name=vulkanCI-windows-x64.zip" >> "$GITHUB_OUTPUT"
+          echo "vk-ci-artifact-name=vulkanCI-windows-x64.zip" >> "$GITHUB_ENV"
         elif [[ "${{ runner.os }}" == "Linux" ]]; then
-          echo "vk-ci-artifact-name=vulkanCI-ubuntu24.04-x64.zip" >> "$GITHUB_OUTPUT"
+          echo "vk-ci-artifact-name=vulkanCI-ubuntu24.04-x64.zip" >> "$GITHUB_ENV"
         fi
 
 
@@ -34,7 +34,7 @@ runs:
       with:
         repository: 'NcStudios/VulkanCI'
         tag: 'v${{ inputs.sdkVersion }}'
-        filename: '${{ steps.simplify-me.vk-ci-artifact-name}}'
+        filename: '${{ env.vk-ci-artifact-name}}'
         out-file-path: 'VulkanSDK'
         extract: true
     - name: Setup Environment
