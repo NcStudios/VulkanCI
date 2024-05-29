@@ -30,8 +30,8 @@ runs:
     #       echo "vk-ci-swiftshader-lib-name=libvk_swiftshader.so" >> "$GITHUB_ENV"
     #     fi
 
-    - name: Set Up Artifact Name
-      id: set-up-artifact-name
+    - name: Set Up Artifact Names
+      id: artifacts
       shell: bash
       run: |
         if [[ "${{ runner.os }}" == "Windows" ]]; then
@@ -40,6 +40,12 @@ runs:
         elif [[ "${{ runner.os }}" == "Linux" ]]; then
           echo "vk-ci-artifact-name=vulkanCI-ubuntu20.04-x64.zip" >> "$GITHUB_OUTPUT"
           echo "vk-ci-swiftshader-lib-name=libvk_swiftshader.so" >> "$GITHUB_OUTPUT"
+        elif [[ "${{ runner.os }}" == "macOS" ]]; then
+          echo "vk-ci-artifact-name=vulkanCI-macOS-x64.zip" >> "$GITHUB_OUTPUT"
+          echo "vk-ci-swiftshader-lib-name=libvk_swiftshader.dylib" >> "$GITHUB_OUTPUT"
+        else
+          echo "Unsupported OS: ${{ runner.os }}"
+          exit 1
         fi
 
     - name: Download Artifacts
@@ -47,7 +53,7 @@ runs:
       with:
         repository: 'NcStudios/VulkanCI'
         tag: 'sdk-${{ inputs.sdkVersion }}'
-        filename: '${{ steps.set-up-artifact-name.vk-ci-artifact-name}}'
+        filename: '${{ steps.artifacts.outputs.vk-ci-artifact-name}}'
         out-file-path: 'VulkanSDK'
         extract: true
 
@@ -66,7 +72,7 @@ runs:
         {
           "file_format_version": "1.0.0",
           "ICD": {
-            "library_path": "$INSTALL_PATH/swiftshader/${{ steps.set-up-artifact-name.vk-ci-swiftshader-lib-name }}",
+            "library_path": "$INSTALL_PATH/swiftshader/${{ steps.artifacts.outputs.vk-ci-swiftshader-lib-name }}",
             "api_version": "1.0.5"
           }
         }
