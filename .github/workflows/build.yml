@@ -98,6 +98,7 @@ jobs:
           submodules: 'recursive'
 
       - name: Build Swiftshader
+        shell: bash
         run: |
           cmake -S Swiftshader -B Swiftshader/build_out -DCMAKE_BUILD_TYPE=Release
           cmake --build Swiftshader/build_out --target vk_swiftshader --config Release
