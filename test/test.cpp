@@ -1,5 +1,6 @@
 #include <vulkan/vulkan.h>
 
+#include <algorithm>
 #include <array>
 #include <iostream>
 #include <string>
@@ -9,7 +10,7 @@
 #error Must build test with VKCI_API_VERSION defined
 #endif
 
-constexpr auto requestedApiVersion = std::string_view{VKCI_API_VERSION};
+constexpr auto requestedVersionString = std::string_view{VKCI_API_VERSION};
 constexpr auto validationLayers = std::string_view{"VK_LAYER_KHRONOS_validation"};
 constexpr auto swiftshaderDeviceName = std::string_view{"SwiftShader Device (LLVM 10.0.0)"};
 
@@ -17,34 +18,36 @@ int main()
 {
     auto version = uint32_t{};
     vkEnumerateInstanceVersion(&version);
-    const auto versionString = std::to_string(VK_API_VERSION_MAJOR(version)) + "."
-                             + std::to_string(VK_API_VERSION_MINOR(version)) + "."
-                             + std::to_string(VK_API_VERSION_PATCH(version)) + "."
-                             + std::to_string(VK_API_VERSION_VARIANT(version));
+    const auto actualVersionString = std::to_string(VK_API_VERSION_MAJOR(version)) + "."
+                                   + std::to_string(VK_API_VERSION_MINOR(version)) + "."
+                                   + std::to_string(VK_API_VERSION_PATCH(version));
 
-    std::cout << "Vulkan Version: " << version << '\n';
+    const auto expectedVersionString = []()
+    {
+        if (std::count(requestedVersionString.begin(), requestedVersionString.end(), '.') == 3)
+        {
+            return requestedVersionString.substr(0, requestedVersionString.rfind('.'));
+        }
 
-    // if (versionString != requestedApiVersion)
-    // {
-    //     std::cerr << "Failed: Expected Vulkan version " << requestedApiVersion << " but found " << versionString << '\n';
-    //     return 1;
-    // }
+        return requestedVersionString;
+    }();
+
+    if (actualVersionString != expectedVersionString)
+    {
+        std::cerr << "Failed: Unexpected Vulkan version. expected: " << expectedVersionString << ", actual: " << actualVersionString << '\n';
+        return 1;
+    }
 
     auto layerCount = uint32_t{};
     vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
     auto availableLayers = std::vector<VkLayerProperties>(layerCount);
     vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
-    auto foundValidationLayers = false;
-    for (auto layer : availableLayers)
+    const auto layerPos = std::find_if(availableLayers.cbegin(), availableLayers.cend(), [](const auto layer)
     {
-        if (validationLayers == layer.layerName)
-        {
-            foundValidationLayers = true;
-            break;
-        }
-    }
+        return validationLayers == layer.layerName;
+    });
 
-    if (!foundValidationLayers)
+    if (layerPos == availableLayers.cend())
     {
         std::cerr << "Failed: did not find validation layers\n";
         return 1;
