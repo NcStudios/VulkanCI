@@ -29,7 +29,7 @@ jobs:
             swiftshaderLibName: libvk_swiftshader.dylib
             artifactName: vulkanCI-macOS-x64
 
-    name: ${{ runner.os }}
+    name: ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
 
     steps:
