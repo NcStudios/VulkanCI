@@ -18,16 +18,28 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - name: Simplify Me
-      id: simplify-me
+    # - name: Simplify Me
+    #   id: simplify-me
+    #   shell: bash
+    #   run: |
+    #     if [[ "${{ runner.os }}" == "Windows" ]]; then
+    #       echo "vk-ci-artifact-name=vulkanCI-windows-x64.zip" >> "$GITHUB_ENV"
+    #       echo "vk-ci-swiftshader-lib-name=vk_swiftshader.dll" >> "$GITHUB_ENV"
+    #     elif [[ "${{ runner.os }}" == "Linux" ]]; then
+    #       echo "vk-ci-artifact-name=vulkanCI-ubuntu20.04-x64.zip" >> "$GITHUB_ENV"
+    #       echo "vk-ci-swiftshader-lib-name=libvk_swiftshader.so" >> "$GITHUB_ENV"
+    #     fi
+
+    - name: Set Up Artifact Name
+      id: set-up-artifact-name
       shell: bash
       run: |
         if [[ "${{ runner.os }}" == "Windows" ]]; then
-          echo "vk-ci-artifact-name=vulkanCI-windows-x64.zip" >> "$GITHUB_ENV"
-          echo "vk-ci-swiftshader-lib-name=vk_swiftshader.dll" >> "$GITHUB_ENV"
+          echo "vk-ci-artifact-name=vulkanCI-windows-x64.zip" >> "$GITHUB_OUTPUT"
+          echo "vk-ci-swiftshader-lib-name=vk_swiftshader.dll" >> "$GITHUB_OUTPUT"
         elif [[ "${{ runner.os }}" == "Linux" ]]; then
-          echo "vk-ci-artifact-name=vulkanCI-ubuntu20.04-x64.zip" >> "$GITHUB_ENV"
-          echo "vk-ci-swiftshader-lib-name=libvk_swiftshader.so" >> "$GITHUB_ENV"
+          echo "vk-ci-artifact-name=vulkanCI-ubuntu20.04-x64.zip" >> "$GITHUB_OUTPUT"
+          echo "vk-ci-swiftshader-lib-name=libvk_swiftshader.so" >> "$GITHUB_OUTPUT"
         fi
 
     - name: Download Artifacts
@@ -35,7 +47,7 @@ runs:
       with:
         repository: 'NcStudios/VulkanCI'
         tag: 'sdk-${{ inputs.sdkVersion }}'
-        filename: '${{ env.vk-ci-artifact-name}}'
+        filename: '${{ steps.set-up-artifact-name.vk-ci-artifact-name}}'
         out-file-path: 'VulkanSDK'
         extract: true
 
@@ -54,7 +66,7 @@ runs:
         {
           "file_format_version": "1.0.0",
           "ICD": {
-            "library_path": "$INSTALL_PATH/swiftshader/${{ env.vk-ci-swiftshader-lib-name }}",
+            "library_path": "$INSTALL_PATH/swiftshader/${{ steps.set-up-artifact-name.vk-ci-swiftshader-lib-name }}",
             "api_version": "1.0.5"
           }
         }
