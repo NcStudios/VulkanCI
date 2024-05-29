@@ -1,10 +1,15 @@
 #include <vulkan/vulkan.h>
 
-#include <stdint.h>
 #include <array>
 #include <iostream>
+#include <string>
 #include <vector>
 
+#ifndef VKCI_API_VERSION
+#error Must build test with VKCI_API_VERSION defined
+#endif
+
+constexpr auto requestedApiVersion = std::string_view{VKCI_API_VERSION};
 constexpr auto validationLayers = std::string_view{"VK_LAYER_KHRONOS_validation"};
 constexpr auto swiftshaderDeviceName = std::string_view{"SwiftShader Device (LLVM 10.0.0)"};
 
@@ -12,14 +17,16 @@ int main()
 {
     auto version = uint32_t{};
     vkEnumerateInstanceVersion(&version);
+    const auto versionString = std::to_string(VK_API_VERSION_MAJOR(version)) + "."
+                             + std::to_string(VK_API_VERSION_MINOR(version)) + "."
+                             + std::to_string(VK_API_VERSION_PATCH(version)) + "."
+                             + std::to_string(VK_API_VERSION_VARIANT(version));
 
-    // @todo assert version
-
-    std::cout << "Vulkan Version "
-              << VK_VERSION_MAJOR(version) << '.'
-              << VK_VERSION_MINOR(version) << '.'
-              << VK_VERSION_PATCH(version)
-              << " (" << version << ")\n";
+    if (versionString != requestedApiVersion)
+    {
+        std::cerr << "Failed: Expected Vulkan version " << requestedApiVersion << " but found " << versionString << '\n';
+        return 1;
+    }
 
     auto layerCount = uint32_t{};
     vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
@@ -61,7 +68,7 @@ int main()
     vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
     if (deviceCount == 0)
     {
-        std::cerr << "Failed: did not find a physical device\n";
+        std::cerr << "Failed: did not find any physical devices\n";
         return 1;
     }
 

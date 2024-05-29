@@ -10,16 +10,20 @@ jobs:
     strategy:
       matrix:
         os: [windows-2019, windows-2022, ubuntu-24.04]
+        sdkVersion: [1.3.261.1]
 
     name: ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
 
     steps:
       - uses: actions/checkout@v4
-      - uses: ./
+
+      - name: Run VulkanCI Action
+        uses: ./
         with:
-          sdkVersion: '1.3.261.1'
-      - name: Test Environment
+          sdkVersion: '${{ matrix.sdkVersion }}'
+
+      - name: Print Environment
         shell: bash
         run: |
           echo "VULKAN_SDK=$VULKAN_SDK"
@@ -31,6 +35,9 @@ jobs:
           echo "generated driver manifest:"
           cat $VK_DRIVER_FILES
 
-          cmake -S test -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE="${{ github.workspace }}"
+      - name: Run Test
+        shell: bash
+        run: |
+          cmake -S test -B build -DVKCI_API_VERSION="${{ matrix.sdkVersion }}" -DCMAKE_BUILD_TYPE=Release -DCMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE="${{ github.workspace }}"
           cmake --build build --config Release
           ./vulkan-ci-test

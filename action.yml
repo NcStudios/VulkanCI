@@ -30,15 +30,15 @@ runs:
           echo "vk-ci-swiftshader-lib-name=libvk_swiftshader.so" >> "$GITHUB_ENV"
         fi
 
-
     - name: Download Artifacts
       uses: robinraju/release-downloader@v1.10
       with:
         repository: 'NcStudios/VulkanCI'
-        tag: 'v${{ inputs.sdkVersion }}'
+        tag: 'sdk-${{ inputs.sdkVersion }}'
         filename: '${{ env.vk-ci-artifact-name}}'
         out-file-path: 'VulkanSDK'
         extract: true
+
     - name: Setup Environment
       id: setup-environment
       shell: bash
