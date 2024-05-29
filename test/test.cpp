@@ -79,19 +79,15 @@ int main()
 
     auto devices = std::vector<VkPhysicalDevice>(deviceCount);
     vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
-    auto foundSwiftShader = false;
-    for (auto device : devices)
+
+    const auto swiftshaderPos = std::find_if(devices.cbegin(), devices.cend(), [](auto device)
     {
         auto properties = VkPhysicalDeviceProperties{};
         vkGetPhysicalDeviceProperties(device, &properties);
-        if (swiftshaderDeviceName == properties.deviceName)
-        {
-            foundSwiftShader = true;
-            break;
-        }
-    }
+        return swiftshaderDeviceName == properties.deviceName;
+    });
 
-    if (!foundSwiftShader)
+    if (swiftshaderPos == devices.cend())
     {
         std::cerr << "Failed: did not find SwiftShader\n";
         return 1;

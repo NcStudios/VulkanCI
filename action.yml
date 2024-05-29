@@ -18,18 +18,6 @@ outputs:
 runs:
   using: "composite"
   steps:
-    # - name: Simplify Me
-    #   id: simplify-me
-    #   shell: bash
-    #   run: |
-    #     if [[ "${{ runner.os }}" == "Windows" ]]; then
-    #       echo "vk-ci-artifact-name=vulkanCI-windows-x64.zip" >> "$GITHUB_ENV"
-    #       echo "vk-ci-swiftshader-lib-name=vk_swiftshader.dll" >> "$GITHUB_ENV"
-    #     elif [[ "${{ runner.os }}" == "Linux" ]]; then
-    #       echo "vk-ci-artifact-name=vulkanCI-ubuntu20.04-x64.zip" >> "$GITHUB_ENV"
-    #       echo "vk-ci-swiftshader-lib-name=libvk_swiftshader.so" >> "$GITHUB_ENV"
-    #     fi
-
     - name: Set Up Artifact Names
       id: artifacts
       shell: bash
