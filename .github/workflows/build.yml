@@ -12,7 +12,7 @@ jobs:
   Build:
     strategy:
       matrix:
-        os: [windows-2022, ubuntu-20.04]
+        os: [windows-2022, ubuntu-20.04, macOS-12]
         include:
           - os: windows-2022
             shortName: Windows
@@ -22,6 +22,10 @@ jobs:
             shortName: Linux
             swiftshaderLibName: libvk_swiftshader.so
             artifactName: vulkanCI-ubuntu20.04-x64
+          - os: macOS-12
+            shortName: macOS
+            swiftshaderLibName: libvk_swiftshader.dylib
+            artifactName: vulkanCI-macOS-x64
 
     name: ${{ matrix.shortName }}
     runs-on: ${{ matrix.os }}
@@ -97,8 +101,15 @@ jobs:
         run: |
           cmake -S Swiftshader -B Swiftshader/build_out -DCMAKE_BUILD_TYPE=Release
           cmake --build Swiftshader/build_out --target vk_swiftshader --config Release
+
+          if [[ "${{ matrix.shortName }}" == "macOS" ]]; then
+            OUT_DIR=Darwin
+          else
+            OUT_DIR=${{ matrix.shortName }}
+          fi
+          
           mkdir ${{ env.SDK_PATH }}/swiftshader
-          cp Swiftshader/build_out/${{ matrix.shortName }}/${{ matrix.swiftshaderLibName }} ${{ env.SDK_PATH }}/swiftshader
+          cp Swiftshader/build_out/$OUT_DIR/${{ matrix.swiftshaderLibName }} ${{ env.SDK_PATH }}/swiftshader
           cp Swiftshader/LICENSE.txt ${{ env.SDK_PATH }}/swiftshader
 
       - name: Upload Artifacts
