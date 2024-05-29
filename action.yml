@@ -82,5 +82,5 @@ runs:
           exit 1
         fi
 
-        echo "vk-ci-vulkan-path=$INSTALL_PATH" >> "$GITHUB_OUTPUT"
-        echo "vk-ci-swiftshader-path=$INSTALL_PATH/swiftshader" >> "$GITHUB_OUTPUT"
+        echo "vulkan-install-path=$INSTALL_PATH" >> "$GITHUB_OUTPUT"
+        echo "swiftshader-install-path=$INSTALL_PATH/swiftshader" >> "$GITHUB_OUTPUT"
