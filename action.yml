@@ -11,10 +11,10 @@ inputs:
 outputs:
   vulkan-install-path:
     description: 'Path VulkanSDK was install to'
-    value: ${{ steps.setup-environment.vk-ci-vulkan-install-path }}
+    value: ${{ steps.setup-environment.outputs.vk-ci-vulkan-install-path }}
   swiftshader-install-path:
     description: 'Path SwiftShader was installed to'
-    value: ${{ steps.setup-environment.vk-ci-swiftshader-install-path }}
+    value: ${{ steps.setup-environment.outputs.vk-ci-swiftshader-install-path }}
 runs:
   using: "composite"
   steps:
