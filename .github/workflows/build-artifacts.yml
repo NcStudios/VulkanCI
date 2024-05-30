@@ -2,13 +2,24 @@ name: build-artifacts
 
 on:
   workflow_dispatch:
+  inputs:
+    draftRelease:
+      description: 'Create a draft release for the built artifacts'
+      required: true
+      default: false
+      type: boolean
+    releaseTag:
+      description: 'Tag to create for release'
+      required: false
+      default: 'v0.2'
+      type: string
 
 jobs:
-  Build:
+  build:
     strategy:
       matrix:
         os: [windows-2022, ubuntu-20.04, macOS-12]
-        sdkTag: ['vulkan-sdk-1.3.283.0', 'sdk-1.3.261.1']
+        sdkTag: ['vulkan-sdk-1.3.283.0', 'vulkan-sdk-1.3.280.0', 'vulkan-sdk-1.3.275.0']
         include:
           - os: windows-2022
             swiftshaderLibName: vk_swiftshader.dll
@@ -17,7 +28,7 @@ jobs:
           - os: macOS-12
             swiftshaderLibName: libvk_swiftshader.dylib
 
-    name: 'Build vulkanCI-${{ matrix.sdkTag }}-${{ matrix.os }}-x64'
+    name: 'build ${{ matrix.os }} | ${{ matrix.sdkTag }}'
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -25,7 +36,7 @@ jobs:
         shell: bash
         run: echo "Requested VulkanSDK ${{ matrix.sdkTag }}"
 
-      - name: Setup MSVC
+      - name: Set up MSVC
         if: ${{ runner.os == 'Windows' }}
         uses: ilammy/msvc-dev-cmd@v1
 
@@ -35,7 +46,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y xorg-dev libwayland-dev
 
-      - name: Set up SDK path
+      - name: Set up environment variables
         shell: bash
         run: |
           SDK_VERSION=$(echo "${{ matrix.sdkTag }}" | sed -E 's/[^0-9]*([0-9]+\.[0-9]+\.[0-9]+(\.[0-9]+)?).*/\1/')
@@ -117,3 +128,31 @@ jobs:
         with:
           name: ${{ env.ARTIFACT_NAME }}
           path: VulkanSDK
+
+  publish:
+    - name: Draft Release
+      runs-on: ubuntu-latest
+      needs: build
+      steps:
+        - name: Download Artifacts
+          uses: actions/download-artifact@v2
+          with:
+            pattern: vulkanCI-*-.zip
+            path: artifacts
+            merge-multiple: true
+
+        - name: Create Release
+          env:
+            GH_TOKEN: ${{ github.token }}
+            GH_REPO: NcStudios/VulkanCI
+          run: |
+            ls -R artifacts
+
+            gh release create ${{ inputs.releaseTag }} \
+              --draft \
+              --title "VulkanCI ${{ inputs.releaseTag }}" \
+              --generate-notes \
+
+            for file in artifacts/*; do
+              gh release upload ${{ inputs.releaseTag }} $file
+            done
