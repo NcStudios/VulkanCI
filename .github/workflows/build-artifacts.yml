@@ -29,6 +29,10 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
+      - name: Print Inputs
+        shell: bash
+        run: echo "${{ toJSON(github.events.inputs) }}"
+
       - name: Setup MSVC
         if: ${{ runner.os == 'Windows' }}
         uses: ilammy/msvc-dev-cmd@v1
