@@ -2,17 +2,17 @@ name: build-artifacts
 
 on:
   workflow_dispatch:
-  inputs:
-    draftRelease:
-      description: 'Create a draft release for the built artifacts'
-      required: true
-      default: false
-      type: boolean
-    releaseTag:
-      description: 'Tag to create for release'
-      required: false
-      default: 'v0.2'
-      type: string
+    inputs:
+      draftRelease:
+        description: 'Create a draft release for the built artifacts'
+        required: true
+        default: false
+        type: boolean
+      releaseTag:
+        description: 'Tag to create for release'
+        required: false
+        default: 'v0.2'
+        type: string
 
 jobs:
   build:
