@@ -131,11 +131,12 @@ jobs:
 
   publish:
     name: Draft Release
+    if: ${{ inputs.draftRelease }}
     runs-on: ubuntu-latest
     needs: build
     steps:
       - name: Download Artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           pattern: vulkanCI-*-.zip
           path: artifacts
