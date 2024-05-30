@@ -2,7 +2,7 @@
 
 [![test](https://github.com/NcStudios/VulkanCI/actions/workflows/test.yml/badge.svg)](https://github.com/NcStudios/VulkanCI/actions/workflows/test.yml)
 
-This action performs minimal environment setup for running Vulkan applications on GitHub-hosted runners. It downloads a pre-built package containing the Vulkan headers, loader, and validation layers as well as SwiftShader, serving as software-only Vulkan implementation.
+This action enables running Vulkan applications on GitHub-hosted runners. It downloads a pre-built package containing the Vulkan headers, loader, and validation layers as well as [SwiftShader](https://github.com/google/swiftshader) (a software-only Vulkan implementation), and sets up the GitHub environment with the necessary variables. Currently, the environment setup is intended to be minimal, so additional VulkanSDK components are not provided.
 
 ## Usage
 ```yaml
@@ -10,6 +10,7 @@ This action performs minimal environment setup for running Vulkan applications o
   with:
     # VulkanSDK version to use
     # Must be a supported version
+    # The default value is 1.3.261.1
     sdkVersion: 1.3.261.1
 
     # Optional path to installation path
@@ -17,7 +18,7 @@ This action performs minimal environment setup for running Vulkan applications o
     installPath: 'myArtifacts'
 ```
 
-## Output Variables
+## Outputs
 - `vulkan-sdk-install-path` Path where the VulkanSDK was installed
 - `swiftshader-install-path` Path where SwiftShader was installed
 
@@ -29,15 +30,21 @@ In addition to the output variables, the action updates the following contexts t
   - `VULKAN_SDK_VERSION`
   - `VK_LAYER_PATH`
   - `VK_DRIVER_FILES` (points to a SwiftShader manifest at `swiftshader-install-path/vk_swiftshader_icd.json`)
-  - `LD_LIBRARY_PATH` (Appends on Linux only)
-  - `DYLD_LIBRARY_PATH` (Appends on macOS only)
+  - `LD_LIBRARY_PATH` (Linux only)
+  - `DYLD_LIBRARY_PATH` (macOS only)
 - `github.path`
   - `$VULKAN_SDK/bin` (Windows only)
 
 ## Supported VulkanSDK Versions
 - 1.3.261.1
 
-## Known Limitations
-Due to limitations in SwiftShader, macOS binaries are built for x86_64.
-
-While SwiftShader is a fully conforming Vulkan 1.3 implementation, it typically does not support a wide range of extensions. YMMV.
+## Supported Runners
+The intention is to support all standard GitHub-hosted runners. Tests currently run on:
+- `windows-2019`
+- `windows-2022`
+- `ubuntu20.04`
+- `ubuntu22.04`
+- `ubuntu24.04`
+- `macOS-12`
+- `macOS-13`
+- `macOS-14`
