@@ -24,17 +24,43 @@ jobs:
         with:
           sdkVersion: '${{ matrix.sdkVersion }}'
 
-      - name: Print Environment
+      - name: Test Environment
         shell: bash
         run: |
-          echo "vulkan-install-path=${{ steps.run-action.outputs.vulkan-install-path }}"
-          echo "swiftshader-install-path=${{ steps.run-action.outputs.swiftshader-install-path }}"
-          echo "VULKAN_SDK=$VULKAN_SDK"
-          echo "VULKAN_SDK_VERSION=$VULKAN_SDK_VERSION"
-          echo "VK_LAYER_PATH=$VK_LAYER_PATH"
-          echo "SWIFTSHADER_INSTALL_PATH=$SWIFTSHADER_INSTALL_PATH"
-          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
-          echo "VK_DRIVER_FILES=$VK_DRIVER_FILES"
+          check_var() {
+            local value=$1
+            local description=$2
+            local type=$3
+
+            echo "$description=$value"
+
+            if [ "$type" = "dir" ]; then
+              if [ ! -d "$value" ]; then
+                echo "$description is not set to a valid directory"
+                exit 1
+              fi
+            elif [ "$type" = "file" ]; then
+              if [ ! -f "$value" ]; then
+                echo "$description is not set to a valid file"
+                exit 1
+              fi
+            elif [ "$type" = "value" ]; then
+              if [ -z "$value" ]; then
+                echo "$description is not set to a value"
+                exit 1
+              fi
+            else
+              echo "Invalid type for $description". Use 'file', 'dir', or 'value'.
+              exit 1
+            fi
+          }
+
+          check_var "${{ steps.run-action.outputs.vulkan-install-path }}" "vulkan-install-path" "dir"
+          check_var "${{ steps.run-action.outputs.swiftshader-install-path }}" "swiftshader-install-path" "dir"
+          check_var "$VULKAN_SDK" "VULKAN_SDK" "dir"
+          check_var "$VULKAN_SDK_VERSION" "VULKAN_SDK_VERSION" "value"
+          check_var "$VK_LAYER_PATH" "VK_LAYER_PATH" "dir"
+          check_var "$VK_DRIVER_FILES" "VK_DRIVER_FILES" "file"
           echo "generated driver manifest:"
           cat $VK_DRIVER_FILES
 

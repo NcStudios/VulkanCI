@@ -4,6 +4,7 @@ inputs:
   sdkVersion:
     description: 'Requested VulkanSDK version'
     required: true
+    default: 1.3.261.1
   installPath:
     description: 'Directory to install to'
     required: false
@@ -54,7 +55,6 @@ runs:
 
         echo "VULKAN_SDK=$INSTALL_PATH" >> "$GITHUB_ENV"
         echo "VULKAN_SDK_VERSION=${{ inputs.sdkVersion }}" >> "$GITHUB_ENV"
-        echo "SWIFTSHADER_INSTALL_PATH=$INSTALL_PATH/swiftshader" >> "$GITHUB_ENV"
 
         cat <<EOF > "$INSTALL_PATH/swiftshader/vk_swiftshader_icd.json"
         {
