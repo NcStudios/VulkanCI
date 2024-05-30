@@ -41,7 +41,7 @@ jobs:
           ROOT_PATH='${{ github.workspace }}'
           echo "SDK_PATH=${ROOT_PATH//\\//}/VulkanSDK/${{ matrix.sdkTag }}" >> $GITHUB_ENV
 
-          SDK_VERSION=$(echo "${{ matrix.sdkTag }}" | grep -oP '\d+\.\d+\.\d+\')
+          SDK_VERSION=$(echo "${{ matrix.sdkTag }}" | sed -E 's/[^0-9]*([0-9]+\.[0-9]+\.[0-9]+(\.[0-9]+)?).*/\1/')
           echo "ARTIFACT_NAME=vulkanCI-$SDK_VERSION-${{ matrix.os }}-x64" >> $GITHUB_ENV
 
       - name: Checkout Vulkan-Headers
