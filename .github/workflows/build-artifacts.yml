@@ -130,29 +130,29 @@ jobs:
           path: VulkanSDK
 
   publish:
-    - name: Draft Release
-      runs-on: ubuntu-latest
-      needs: build
-      steps:
-        - name: Download Artifacts
-          uses: actions/download-artifact@v2
-          with:
-            pattern: vulkanCI-*-.zip
-            path: artifacts
-            merge-multiple: true
+    name: Draft Release
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Download Artifacts
+        uses: actions/download-artifact@v2
+        with:
+          pattern: vulkanCI-*-.zip
+          path: artifacts
+          merge-multiple: true
 
-        - name: Create Release
-          env:
-            GH_TOKEN: ${{ github.token }}
-            GH_REPO: NcStudios/VulkanCI
-          run: |
-            ls -R artifacts
+      - name: Create Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: NcStudios/VulkanCI
+        run: |
+          ls -R artifacts
 
-            gh release create ${{ inputs.releaseTag }} \
-              --draft \
-              --title "VulkanCI ${{ inputs.releaseTag }}" \
-              --generate-notes \
+          gh release create ${{ inputs.releaseTag }} \
+            --draft \
+            --title "VulkanCI ${{ inputs.releaseTag }}" \
+            --generate-notes \
 
-            for file in artifacts/*; do
-              gh release upload ${{ inputs.releaseTag }} $file
-            done
+          for file in artifacts/*; do
+            gh release upload ${{ inputs.releaseTag }} $file
+          done
