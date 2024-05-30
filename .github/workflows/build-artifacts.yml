@@ -24,7 +24,7 @@ jobs:
           - os: macOS-12
             swiftshaderLibName: libvk_swiftshader.dylib
             artifactName: vulkanCI-macOS-x64
-            cmakeDefinitions: -DCMAKE_OSX_ARCHITECTURES=arm64;x86_64
+            cmakeDefinitions: -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
 
     name: ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
