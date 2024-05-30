@@ -31,7 +31,7 @@ jobs:
     steps:
       - name: Print Inputs
         shell: bash
-        run: echo "${{ toJSON(github.events.inputs) }}"
+        run: echo "Requested VulkanSDK version: ${{ inputs.sdkVersion }}"
 
       - name: Setup MSVC
         if: ${{ runner.os == 'Windows' }}
