@@ -1,0 +1,86 @@
+name: 'VulkanCI'
+description: 'Set up CI environment for testing Vulkan apps'
+inputs:
+  sdkVersion:
+    description: 'Requested VulkanSDK version'
+    required: true
+    default: 1.3.261.1
+  installPath:
+    description: 'Directory to install to'
+    required: false
+    default: ${{ github.workspace }}
+outputs:
+  vulkan-install-path:
+    description: 'Path VulkanSDK was install to'
+    value: ${{ steps.setup-environment.outputs.vk-ci-vulkan-install-path }}
+  swiftshader-install-path:
+    description: 'Path SwiftShader was installed to'
+    value: ${{ steps.setup-environment.outputs.vk-ci-swiftshader-install-path }}
+runs:
+  using: "composite"
+  steps:
+    - name: Set Up Artifact Names
+      id: artifacts
+      shell: bash
+      run: |
+        if [[ "${{ runner.os }}" == "Windows" ]]; then
+          echo "vk-ci-artifact-name=vulkanCI-windows-x64.zip" >> "$GITHUB_OUTPUT"
+          echo "vk-ci-swiftshader-lib-name=vk_swiftshader.dll" >> "$GITHUB_OUTPUT"
+        elif [[ "${{ runner.os }}" == "Linux" ]]; then
+          echo "vk-ci-artifact-name=vulkanCI-ubuntu20.04-x64.zip" >> "$GITHUB_OUTPUT"
+          echo "vk-ci-swiftshader-lib-name=libvk_swiftshader.so" >> "$GITHUB_OUTPUT"
+        elif [[ "${{ runner.os }}" == "macOS" ]]; then
+          echo "vk-ci-artifact-name=vulkanCI-macOS-x64.zip" >> "$GITHUB_OUTPUT"
+          echo "vk-ci-swiftshader-lib-name=libvk_swiftshader.dylib" >> "$GITHUB_OUTPUT"
+        else
+          echo "Unsupported OS: ${{ runner.os }}"
+          exit 1
+        fi
+
+    - name: Download Artifacts
+      uses: robinraju/release-downloader@v1.10
+      with:
+        repository: 'NcStudios/VulkanCI'
+        tag: 'sdk-${{ inputs.sdkVersion }}'
+        filename: '${{ steps.artifacts.outputs.vk-ci-artifact-name}}'
+        out-file-path: 'VulkanSDK'
+        extract: true
+
+    - name: Setup Environment
+      id: setup-environment
+      shell: bash
+      run: |
+        INSTALL_PATH="${{ inputs.installPath }}/VulkanSDK/${{ inputs.sdkVersion }}"
+        INSTALL_PATH="${INSTALL_PATH//\\//}"
+
+        echo "VULKAN_SDK=$INSTALL_PATH" >> "$GITHUB_ENV"
+        echo "VULKAN_SDK_VERSION=${{ inputs.sdkVersion }}" >> "$GITHUB_ENV"
+
+        cat <<EOF > "$INSTALL_PATH/swiftshader/vk_swiftshader_icd.json"
+        {
+          "file_format_version": "1.0.0",
+          "ICD": {
+            "library_path": "$INSTALL_PATH/swiftshader/${{ steps.artifacts.outputs.vk-ci-swiftshader-lib-name }}",
+            "api_version": "1.0.5"
+          }
+        }
+        EOF
+
+        echo "VK_DRIVER_FILES=$INSTALL_PATH/swiftshader/vk_swiftshader_icd.json" >> "$GITHUB_ENV"
+
+        if [[ "${{ runner.os }}" == "Windows" ]]; then
+          echo "VK_LAYER_PATH=$INSTALL_PATH/bin" >> "$GITHUB_ENV"
+          echo "$INSTALL_PATH/bin" >> "$GITHUB_PATH"
+        elif [[ "${{ runner.os }}" == "Linux" ]]; then
+          echo "VK_LAYER_PATH=$INSTALL_PATH/share/vulkan/explicit_layer.d" >> "$GITHUB_ENV"
+          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$INSTALL_PATH/lib:$INSTALL_PATH/swiftshader" >> "$GITHUB_ENV"
+        elif [[ "${{ runner.os }}" == "macOS" ]]; then
+          echo "VK_LAYER_PATH=$INSTALL_PATH/share/vulkan/explicit_layer.d" >> "$GITHUB_ENV"
+          echo "DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$INSTALL_PATH/lib:$INSTALL_PATH/swiftshader" >> "$GITHUB_ENV"
+        else
+          echo "Unsupported OS: ${{ runner.os }}"
+          exit 1
+        fi
+
+        echo "vk-ci-vulkan-install-path=$INSTALL_PATH" >> "$GITHUB_OUTPUT"
+        echo "vk-ci-swiftshader-install-path=$INSTALL_PATH/swiftshader" >> "$GITHUB_OUTPUT"
