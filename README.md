@@ -48,3 +48,6 @@ The intention is to support all standard GitHub-hosted runners. Tests currently 
 - `macOS-12`
 - `macOS-13`
 - `macOS-14`
+
+## Known Limitations
+Currently, all macOS binaries are built for x86_64.

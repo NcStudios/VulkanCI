@@ -24,7 +24,6 @@ jobs:
           - os: macOS-12
             swiftshaderLibName: libvk_swiftshader.dylib
             artifactName: vulkanCI-macOS-x64
-            cmakeDefinitions: -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
 
     name: ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -69,7 +68,7 @@ jobs:
       - name: Build Vulkan-Loader
         shell: bash
         run: |
-          cmake -S Vulkan-Loader -B Vulkan-Loader/build -DVULKAN_HEADERS_INSTALL_DIR=${{ env.SDK_PATH }} -DLOADER_USE_UNSAFE_FILE_SEARCH=ON -DCMAKE_BUILD_TYPE=Release ${{ matrix.cmakeDefinitions }}
+          cmake -S Vulkan-Loader -B Vulkan-Loader/build -DVULKAN_HEADERS_INSTALL_DIR=${{ env.SDK_PATH }} -DLOADER_USE_UNSAFE_FILE_SEARCH=ON -DCMAKE_BUILD_TYPE=Release
           cmake --build Vulkan-Loader/build --config Release --parallel 4
           cmake --install Vulkan-Loader/build --prefix ${{ env.SDK_PATH }}
 
@@ -83,7 +82,7 @@ jobs:
       - name: Build Vulkan-ValidationLayers
         shell: bash
         run: |
-          cmake -S Vulkan-ValidationLayers -B Vulkan-ValidationLayers/build -DUPDATE_DEPS=ON -DCMAKE_BUILD_TYPE=Release ${{ matrix.cmakeDefinitions }}
+          cmake -S Vulkan-ValidationLayers -B Vulkan-ValidationLayers/build -DUPDATE_DEPS=ON -DCMAKE_BUILD_TYPE=Release
           cmake --build Vulkan-ValidationLayers/build --config Release --parallel 4
           cmake --install Vulkan-ValidationLayers/build --prefix ${{ env.SDK_PATH }}
           cp Vulkan-ValidationLayers/LICENSE.txt ${{ env.SDK_PATH }}
@@ -99,7 +98,7 @@ jobs:
       - name: Build Swiftshader
         shell: bash
         run: |
-          cmake -S Swiftshader -B Swiftshader/build_out -DCMAKE_BUILD_TYPE=Release ${{ matrix.cmakeDefinitions }}
+          cmake -S Swiftshader -B Swiftshader/build_out -DCMAKE_BUILD_TYPE=Release
           cmake --build Swiftshader/build_out --target vk_swiftshader --config Release --parallel 4
 
           if [[ "${{ runner.os }}" == "Windows" ]]; then
