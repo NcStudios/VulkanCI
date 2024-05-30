@@ -31,7 +31,7 @@ jobs:
     steps:
       - name: Print Inputs
         shell: bash
-        run: echo "Requested VulkanSDK version: ${{ inputs.sdkVersion }}"
+        run: echo "Requested VulkanSDK v${{ inputs.sdkVersion }}"
 
       - name: Setup MSVC
         if: ${{ runner.os == 'Windows' }}
