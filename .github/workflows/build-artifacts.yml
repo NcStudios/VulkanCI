@@ -9,7 +9,8 @@ on:
         default: '1.3.261.1'
         type: string
       tagPrefix:
-        description: 'VulkanSDK tag prefix ('vulkan-sdk' vs. 'sdk')'
+        description: 'VulkanSDK tag prefix (vulkan-sdk vs. sdk)'
+        required: true
         default: 'vulkan-sdk'
         type: string
 
