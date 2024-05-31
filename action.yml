@@ -41,10 +41,12 @@ runs:
       uses: robinraju/release-downloader@v1.10
       with:
         repository: 'NcStudios/VulkanCI'
-        tag: '${{ github.action_ref || github.ref_name }}'
+        tag: '${{ evn.ACTION_TAG }}'
         filename: '${{ steps.artifacts.outputs.vk-ci-artifact-name}}'
         out-file-path: 'VulkanSDK'
         extract: true
+      env:
+        ACTION_TAG: ${{ github.action_ref }}
 
     - name: Setup Environment
       id: setup-environment
