@@ -1,20 +1,16 @@
 name: draft-release
 
 on:
-# debugging: remove
-  pull_request:
-    branches: [ vnext ]
-
   workflow_dispatch:
     inputs:
       releaseTag:
         description: 'Tag for the release'
         required: true
         default: 'v0.2'
-      source-branch:
+      sourceBranch:
         description: 'The branch to pull artifacts from'
         required: true
-        default: 'cal/publish_release_job' # debugging: change to vnext
+        default: 'vnext'
 
 jobs:
   create-release:
@@ -24,14 +20,12 @@ jobs:
       - name: Find latest successful build-artifacts workflow run
         id: find-run
         run: |
-          DEBUG_BRANCH=cal/publish_release_job
-          ENCODED_BRANCH=$(echo -n "$DEBUG_BRANCH" | jq -sRr @uri)
-
           WORKFLOW_ID=$(curl -s \
             "https://api.github.com/repos/NcStudios/VulkanCI/actions/workflows" \
             | jq -r '.workflows[] | select(.name == "build-artifacts") | .id')
           echo "WORKFLOW_ID=$WORKFLOW_ID"
 
+          ENCODED_BRANCH=$(echo -n "${{ inputs.sourceBranch }}" | jq -sRr @uri)
           RESPONSE=$(curl -s "https://api.github.com/repos/NcStudios/VulkanCI/actions/workflows/$WORKFLOW_ID/runs?branch=$ENCODED_BRANCH&status=success&per_page=1")
           echo "RESPONSE=$RESPONSE"
 
@@ -61,15 +55,11 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: NcStudios/VulkanCI
         run: |
-          ls -R artifacts
-
-          DEBUG_TAG=v0.2
-
-          gh release create $DEBUG_TAG \
+          gh release create ${{ inputs.releaseTag }} \
             --draft \
-            --title "VulkanCI $DEBUG_TAG" \
+            --title "VulkanCI ${{ inputs.releaseTag }}" \
             --generate-notes \
 
           for ARTIFACT in artifacts/*; do
-            gh release upload $DEBUG_TAG $ARTIFACT
+            gh release upload ${{ inputs.releaseTag }} $ARTIFACT
           done
