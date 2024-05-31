@@ -21,35 +21,31 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Set up environment variables
-        run: |
-          echo "SOURCE_BRANCH=${{ inputs.source-branch }}" >> $GITHUB_ENV
-          echo "GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
-
       - name: Find latest successful build-artifacts workflow run
         id: find-run
         run: |
           LATEST_RUN_ID=$(curl -s \
-            -H "Authorization: token $GITHUB_TOKEN" \
-            "https://api.github.com/repos/NcStudios/VulkanCI/actions/workflows/build-artifacts/runs?branch=${SOURCE_BRANCH}&status=success&per_page=1" \
+            -H "Authorization: token ${{ github.token }}" \
+            "https://api.github.com/repos/NcStudios/VulkanCI/actions/workflows/build-artifacts/runs?branch=${{ inputs.source-branch }}&status=success&per_page=1" \
             | jq -r '.workflow_runs[0].id')
 
-          echo "LATEST_RUN_ID=${LATEST_RUN_ID}" >> $GITHUB_ENV
+          echo "LATEST_RUN_ID=$LATEST_RUN_ID" >> $GITHUB_ENV
+          echo "LATEST_RUN_ID=$LATEST_RUN_ID"
 
       - name: Download artifacts
         run: |
           mkdir -p artifacts
           ARTIFACTS=$(curl -s \
-            -H "Authorization: token $GITHUB_TOKEN" \
-            "https://api.github.com/repos/NcStudios/VulkanCI/actions/runs/${LATEST_RUN_ID}/artifacts" \
+            -H "Authorization: token ${{ github.token }}" \
+            "https://api.github.com/repos/NcStudios/VulkanCI/actions/runs/${{ env.LATEST_RUN_ID }}/artifacts" \
             | jq -r '.artifacts[] | select(.name | startswith("vulkanCI-")) | .id')
 
           for ARTIFACT_ID in $ARTIFACTS; do
             echo "Downloading artifact ID: $ARTIFACT_ID"
             curl -sL \
-              -H "Authorization: token $GITHUB_TOKEN" \
+              -H "Authorization: token ${{ github.token }}" \
               -o "artifacts/artifact_${ARTIFACT_ID}.zip" \
-              "https://api.github.com/repos/NcStudios/VulkanCI/actions/artifacts/${ARTIFACT_ID}/zip"
+              "https://api.github.com/repos/NcStudios/VulkanCI/actions/artifacts/$ARTIFACT_ID/zip"
           done
 
       - name: Create Release
