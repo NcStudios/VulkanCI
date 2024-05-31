@@ -1,0 +1,65 @@
+name: draft-release
+
+on:
+  workflow_dispatch:
+    inputs:
+      releaseTag:
+        description: 'Tag for the release'
+        required: true
+        default: 'v0.2'
+      source-branch:
+        description: 'The branch to pull artifacts from'
+        required: true
+        default: 'vnext'
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up environment variables
+        run: |
+          echo "SOURCE_BRANCH=${{ inputs.source-branch }}" >> $GITHUB_ENV
+          echo "GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
+
+      - name: Find latest successful build-artifacts workflow run
+        id: find-run
+        run: |
+          LATEST_RUN_ID=$(curl -s \
+            -H "Authorization: token $GITHUB_TOKEN" \
+            "https://api.github.com/repos/NcStudios/VulkanCI/actions/workflows/build-artifacts/runs?branch=${SOURCE_BRANCH}&status=success&per_page=1" \
+            | jq -r '.workflow_runs[0].id')
+
+          echo "LATEST_RUN_ID=${LATEST_RUN_ID}" >> $GITHUB_ENV
+
+      - name: Download artifacts
+        run: |
+          mkdir -p artifacts
+          ARTIFACTS=$(curl -s \
+            -H "Authorization: token $GITHUB_TOKEN" \
+            "https://api.github.com/repos/NcStudios/VulkanCI/actions/runs/${LATEST_RUN_ID}/artifacts" \
+            | jq -r '.artifacts[] | select(.name | startswith("vulkanCI-")) | .id')
+
+          for ARTIFACT_ID in $ARTIFACTS; do
+            echo "Downloading artifact ID: $ARTIFACT_ID"
+            curl -sL \
+              -H "Authorization: token $GITHUB_TOKEN" \
+              -o "artifacts/artifact_${ARTIFACT_ID}.zip" \
+              "https://api.github.com/repos/NcStudios/VulkanCI/actions/artifacts/${ARTIFACT_ID}/zip"
+          done
+
+      - name: Create Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: NcStudios/VulkanCI
+        run: |
+          ls -R artifacts
+
+          gh release create ${{ inputs.releaseTag }} \
+            --draft \
+            --title "VulkanCI ${{ inputs.releaseTag }}" \
+            --generate-notes \
+
+          for ARTIFACT in artifacts/*; do
+            gh release upload ${{ inputs.releaseTag }} $ARTIFACT
+          done
