@@ -51,6 +51,7 @@ jobs:
             NAME=$(echo $ARTIFACT | jq -r '.name')
             echo "Downloading artifact: $NAME (id: $ID)"
             curl -sL \
+              -H "Authohrization: token ${{ github.token }}" \
               -o "artifacts/$NAME.zip" \
               "https://api.github.com/repos/NcStudios/VulkanCI/actions/artifacts/$ID/zip"
           done
