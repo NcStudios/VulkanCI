@@ -10,9 +10,9 @@ jobs:
     strategy:
       matrix:
         os: [windows-2019, windows-2022, ubuntu-20.04, ubuntu-22.04, ubuntu-24.04, macOS-12, macOS-13, macOS-14]
-        sdkVersion: [1.3.261.1]
+        sdkVersion: [1.3.283.0, 1.3.280.0, 1.3.275.0]
 
-    name: ${{ matrix.os }}
+    name: test ${{ matrix.os }} | ${{ matrix.sdkVersion }}
     runs-on: ${{ matrix.os }}
 
     steps:
