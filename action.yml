@@ -41,11 +41,13 @@ runs:
 
         if [ -n "$ACTION_TAG" ]; then
           echo "vk-ci-action-tag=$ACTION_TAG" >> "$GITHUB_OUTPUT"
+          echo "Using action ref: $ACTION_TAG"
         else
             LATEST_TAG=$(curl -s \
               "https://api.github.com/repos/NcStudios/VulkanCI/releases/latest" \
               | jq -r .tag_name)
             echo "vk-ci-action-tag=$LATEST_TAG" >> "$GITHUB_OUTPUT"
+            echo "Using latest tag: $LATEST_TAG"
         fi
 
     - name: Download Artifacts

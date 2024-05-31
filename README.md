@@ -36,7 +36,8 @@ In addition to the output variables, the action updates the following contexts t
   - `$VULKAN_SDK/bin` (Windows only)
 
 ## Supported VulkanSDK Versions
-- 1.3.261.1
+- 1.3.283.0
+- 1.3.280.
 
 ## Supported Runners
 The intention is to support all standard GitHub-hosted runners. Tests currently run on:
