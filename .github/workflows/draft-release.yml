@@ -27,9 +27,14 @@ jobs:
           DEBUG_BRANCH=cal/publish_release_job
           ENCODED_BRANCH=$(echo -n '$DEBUG_BRANCH' | jq -sRr @uri)
 
+          WORKFLOW_ID=$(curl -s \
+            -H "Authorization: token ${{ github.token }}" \
+            "https://api.github.com/repos/NcStudios/VulkanCI/actions/workflows"
+            | jq -r '.workflows[] | select(.name == "build-artifacts") | .id')
+
           RESPONSE=$(curl -s \
             -H "Authorization: token ${{ github.token }}" \
-            "https://api.github.com/repos/NcStudios/VulkanCI/actions/workflows/build-artifacts/runs?branch=$ENCODE_BRANCH&status=success&per_page=1")
+            "https://api.github.com/repos/NcStudios/VulkanCI/actions/workflows/$WORKFLOW_ID/runs?branch=$ENCODE_BRANCH&status=success&per_page=1")
 
           echo "RESPONSE=$RESPONSE"
 
