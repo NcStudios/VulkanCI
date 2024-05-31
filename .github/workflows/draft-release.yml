@@ -1,0 +1,65 @@
+name: draft-release
+
+on:
+  workflow_dispatch:
+    inputs:
+      releaseTag:
+        description: 'Tag for the release'
+        required: true
+        default: 'v0.2'
+      sourceBranch:
+        description: 'The branch to pull artifacts from'
+        required: true
+        default: 'vnext'
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Find latest successful build-artifacts workflow run
+        id: find-run
+        run: |
+          WORKFLOW_ID=$(curl -s \
+            "https://api.github.com/repos/NcStudios/VulkanCI/actions/workflows" \
+            | jq -r '.workflows[] | select(.name == "build-artifacts") | .id')
+          echo "WORKFLOW_ID=$WORKFLOW_ID"
+
+          ENCODED_BRANCH=$(echo -n "${{ inputs.sourceBranch }}" | jq -sRr @uri)
+          RESPONSE=$(curl -s "https://api.github.com/repos/NcStudios/VulkanCI/actions/workflows/$WORKFLOW_ID/runs?branch=$ENCODED_BRANCH&status=success&per_page=1")
+          echo "RESPONSE=$RESPONSE"
+
+          LATEST_RUN_ID=$(echo "$RESPONSE" | jq -r '.workflow_runs[0].id')
+          echo "LATEST_RUN_ID=$LATEST_RUN_ID" >> $GITHUB_ENV
+          echo "LATEST_RUN_ID=$LATEST_RUN_ID"
+
+      - name: Download artifacts
+        run: |
+          mkdir -p artifacts
+          ARTIFACTS=$(curl -s \
+            "https://api.github.com/repos/NcStudios/VulkanCI/actions/runs/${{ env.LATEST_RUN_ID }}/artifacts" \
+            | jq -c '.artifacts[] | select(.name | startswith("vulkanCI-")) | {id: .id, name: .name}')
+
+          for ARTIFACT in $(echo "$ARTIFACTS" | jq -c '.'); do
+            ID=$(echo $ARTIFACT | jq -r '.id')
+            NAME=$(echo $ARTIFACT | jq -r '.name')
+            echo "Downloading artifact: $NAME (id: $ID)"
+            curl -sL \
+              -H "Authorization: token ${{ github.token }}" \
+              -o "artifacts/$NAME.zip" \
+              "https://api.github.com/repos/NcStudios/VulkanCI/actions/artifacts/$ID/zip"
+          done
+
+      - name: Create Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: NcStudios/VulkanCI
+        run: |
+          gh release create ${{ inputs.releaseTag }} \
+            --draft \
+            --title "VulkanCI ${{ inputs.releaseTag }}" \
+            --generate-notes \
+
+          for ARTIFACT in artifacts/*; do
+            gh release upload ${{ inputs.releaseTag }} $ARTIFACT
+          done

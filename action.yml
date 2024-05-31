@@ -3,8 +3,8 @@ description: 'Set up CI environment for testing Vulkan apps'
 inputs:
   sdkVersion:
     description: 'Requested VulkanSDK version'
-    required: true
-    default: 1.3.261.1
+    required: false
+    default: 1.3.283.0
   installPath:
     description: 'Directory to install to'
     required: false
@@ -22,26 +22,39 @@ runs:
     - name: Set Up Artifact Names
       id: artifacts
       shell: bash
+      env:
+        ACTION_TAG: ${{ github.action_ref }}
       run: |
         if [[ "${{ runner.os }}" == "Windows" ]]; then
-          echo "vk-ci-artifact-name=vulkanCI-windows-x64.zip" >> "$GITHUB_OUTPUT"
+          echo "vk-ci-artifact-name=vulkanCI-${{ inputs.sdkVersion }}-windows-2022-x64.zip" >> "$GITHUB_OUTPUT"
           echo "vk-ci-swiftshader-lib-name=vk_swiftshader.dll" >> "$GITHUB_OUTPUT"
         elif [[ "${{ runner.os }}" == "Linux" ]]; then
-          echo "vk-ci-artifact-name=vulkanCI-ubuntu20.04-x64.zip" >> "$GITHUB_OUTPUT"
+          echo "vk-ci-artifact-name=vulkanCI-${{ inputs.sdkVersion }}-ubuntu-20.04-x64.zip" >> "$GITHUB_OUTPUT"
           echo "vk-ci-swiftshader-lib-name=libvk_swiftshader.so" >> "$GITHUB_OUTPUT"
         elif [[ "${{ runner.os }}" == "macOS" ]]; then
-          echo "vk-ci-artifact-name=vulkanCI-macOS-x64.zip" >> "$GITHUB_OUTPUT"
+          echo "vk-ci-artifact-name=vulkanCI-${{ inputs.sdkVersion }}-macOS-12-x64.zip" >> "$GITHUB_OUTPUT"
           echo "vk-ci-swiftshader-lib-name=libvk_swiftshader.dylib" >> "$GITHUB_OUTPUT"
         else
           echo "Unsupported OS: ${{ runner.os }}"
           exit 1
         fi
 
+        if [ -n "$ACTION_TAG" ]; then
+          echo "vk-ci-action-tag=$ACTION_TAG" >> "$GITHUB_OUTPUT"
+          echo "Using action ref: $ACTION_TAG"
+        else
+            LATEST_TAG=$(curl -s \
+              "https://api.github.com/repos/NcStudios/VulkanCI/releases/latest" \
+              | jq -r .tag_name)
+            echo "vk-ci-action-tag=$LATEST_TAG" >> "$GITHUB_OUTPUT"
+            echo "Using latest tag: $LATEST_TAG"
+        fi
+
     - name: Download Artifacts
       uses: robinraju/release-downloader@v1.10
       with:
         repository: 'NcStudios/VulkanCI'
-        tag: 'sdk-${{ inputs.sdkVersion }}'
+        tag: '${{ steps.artifacts.outputs.vk-ci-action-tag }}'
         filename: '${{ steps.artifacts.outputs.vk-ci-artifact-name}}'
         out-file-path: 'VulkanSDK'
         extract: true

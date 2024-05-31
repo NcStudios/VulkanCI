@@ -10,8 +10,8 @@ This action enables running Vulkan applications on GitHub-hosted runners. It dow
   with:
     # VulkanSDK version to use
     # Must be a supported version
-    # The default value is 1.3.261.1
-    sdkVersion: 1.3.261.1
+    # The default value is 1.3.283.0
+    sdkVersion: 1.3.283.0
 
     # Optional path to installation path
     # The default value is '${{ github.workspace }}`
@@ -36,7 +36,9 @@ In addition to the output variables, the action updates the following contexts t
   - `$VULKAN_SDK/bin` (Windows only)
 
 ## Supported VulkanSDK Versions
-- 1.3.261.1
+- 1.3.283.0
+- 1.3.280.0
+- 1.3.275.0
 
 ## Supported Runners
 The intention is to support all standard GitHub-hosted runners. Tests currently run on:
