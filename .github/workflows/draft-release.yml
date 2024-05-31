@@ -25,11 +25,11 @@ jobs:
         id: find-run
         run: |
           DEBUG_BRANCH=cal/publish_release_job
-          ENCODED_BRANCH=$(echo -n '$DEBUG_BRANCH' | jq -sRr @uri)
+          ENCODED_BRANCH=$(echo -n "$DEBUG_BRANCH" | jq -sRr @uri)
 
           WORKFLOW_ID=$(curl -s \
             -H "Authorization: token ${{ github.token }}" \
-            "https://api.github.com/repos/NcStudios/VulkanCI/actions/workflows"
+            "https://api.github.com/repos/NcStudios/VulkanCI/actions/workflows" \
             | jq -r '.workflows[] | select(.name == "build-artifacts") | .id')
 
           echo "WORKFLOW_ID=$WORKFLOW_ID"
@@ -40,10 +40,7 @@ jobs:
 
           echo "RESPONSE=$RESPONSE"
 
-          LATEST_RUN_ID=$(curl -s \
-            -H "Authorization: token ${{ github.token }}" \
-            "https://api.github.com/repos/NcStudios/VulkanCI/actions/workflows/build-artifacts/runs?branch=$ENCODED_BRANCH&status=success&per_page=1" \
-            | jq -r '.workflow_runs[0].id')
+          LATEST_RUN_ID=$(echo "$RESPONSE" | jq -r '.workflow_runs[0].id')
 
           echo "LATEST_RUN_ID=$LATEST_RUN_ID" >> $GITHUB_ENV
           echo "LATEST_RUN_ID=$LATEST_RUN_ID"
