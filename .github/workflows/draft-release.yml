@@ -1,6 +1,10 @@
 name: draft-release
 
 on:
+# debugging: remove
+  pull_request:
+    branches: [ vnext ]
+
   workflow_dispatch:
     inputs:
       releaseTag:
@@ -10,7 +14,7 @@ on:
       source-branch:
         description: 'The branch to pull artifacts from'
         required: true
-        default: 'vnext'
+        default: 'cal/publish_release_job' # debugging: change to vnext
 
 jobs:
   create-release:
@@ -20,9 +24,12 @@ jobs:
       - name: Find latest successful build-artifacts workflow run
         id: find-run
         run: |
+            # "https://api.github.com/repos/NcStudios/VulkanCI/actions/workflows/build-artifacts/runs?branch=${{ inputs.source-branch }}&status=success&per_page=1" \
+
+
           LATEST_RUN_ID=$(curl -s \
             -H "Authorization: token ${{ github.token }}" \
-            "https://api.github.com/repos/NcStudios/VulkanCI/actions/workflows/build-artifacts/runs?branch=${{ inputs.source-branch }}&status=success&per_page=1" \
+            "https://api.github.com/repos/NcStudios/VulkanCI/actions/workflows/build-artifacts/runs?branch=cal/publish_release_job&status=success&per_page=1" \
             | jq -r '.workflow_runs[0].id')
 
           echo "LATEST_RUN_ID=$LATEST_RUN_ID" >> $GITHUB_ENV
