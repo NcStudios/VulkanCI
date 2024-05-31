@@ -24,8 +24,6 @@ jobs:
       - name: Find latest successful build-artifacts workflow run
         id: find-run
         run: |
-            # "https://api.github.com/repos/NcStudios/VulkanCI/actions/workflows/build-artifacts/runs?branch=${{ inputs.source-branch }}&status=success&per_page=1" \
-
           DEBUG_BRANCH=cal/publish_release_job
           ENCODED_BRANCH=$(echo -n '$DEBUG_BRANCH' | jq -sRr @uri)
 
