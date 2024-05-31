@@ -41,7 +41,7 @@ runs:
       uses: robinraju/release-downloader@v1.10
       with:
         repository: 'NcStudios/VulkanCI'
-        tag: '${{ evn.ACTION_TAG }}'
+        tag: '${{ env.ACTION_TAG }}'
         filename: '${{ steps.artifacts.outputs.vk-ci-artifact-name}}'
         out-file-path: 'VulkanSDK'
         extract: true
