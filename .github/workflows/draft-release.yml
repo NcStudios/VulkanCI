@@ -1,10 +1,6 @@
 name: draft-release
 
 on:
-# debugging: remove
-  pull_request:
-    branches: [ vnext ]
-
   workflow_dispatch:
     inputs:
       releaseTag:
@@ -14,7 +10,7 @@ on:
       source-branch:
         description: 'The branch to pull artifacts from'
         required: true
-        default: 'cal/publish_release_job' # debugging: change to vnext
+        default: 'vnext'
 
 jobs:
   create-release:
