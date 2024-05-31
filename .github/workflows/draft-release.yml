@@ -68,11 +68,13 @@ jobs:
         run: |
           ls -R artifacts
 
-          gh release create ${{ inputs.releaseTag }} \
+          DEBUG_TAG=v0.2
+
+          gh release create $DEBUG_TAG \
             --draft \
-            --title "VulkanCI ${{ inputs.releaseTag }}" \
+            --title "VulkanCI $DEBUG_TAG" \
             --generate-notes \
 
           for ARTIFACT in artifacts/*; do
-            gh release upload ${{ inputs.releaseTag }} $ARTIFACT
+            gh release upload $DEBUG_TAG $ARTIFACT
           done
