@@ -46,13 +46,13 @@ jobs:
             "https://api.github.com/repos/NcStudios/VulkanCI/actions/runs/${{ env.LATEST_RUN_ID }}/artifacts" \
             | jq -r '.artifacts[] | select(.name | startswith("vulkanCI-")) | "\(.id) \(.name)"')
 
-          for ARTIFACT_ID in $ARTIFACTS; do
+          for ARTIFACT in $ARTIFACTS; do
             ID=$(echo $ARTIFACT | cut -d ' ' -f1)
             NAME=$(echo $ARTIFACT | cut -d ' ' -f2)
             echo "Downloading artifact: $NAME (id: $ID)"
             curl -sL \
               -o "artifacts/$NAME.zip" \
-              "https://api.github.com/repos/NcStudios/VulkanCI/actions/artifacts/$ARTIFACT_ID/zip"
+              "https://api.github.com/repos/NcStudios/VulkanCI/actions/artifacts/$ID/zip"
           done
 
       - name: Create Release
