@@ -39,6 +39,7 @@ In addition to the output variables, the action updates the following contexts t
 - 1.3.283.0
 - 1.3.280.0
 - 1.3.275.0
+- 1.3.261.1
 
 ## Supported Runners
 The intention is to support all standard GitHub-hosted runners. Tests currently run on:
