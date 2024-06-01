@@ -39,15 +39,12 @@ runs:
           exit 1
         fi
 
-        if [ -n "$ACTION_TAG" ]; then
-          echo "vk-ci-action-tag=$ACTION_TAG" >> "$GITHUB_OUTPUT"
-          echo "Using action ref: $ACTION_TAG"
+        if [ -n "${{ env.VK_CI_TEST_TAG_OVERRIDE }}" ]; then
+          echo "Test run detected. Using artifacts from release: ${{ env.VK_CI_TEST_TAG_OVERRIDE }}"
+          echo "vk-ci-action-tag=${{ env.VK_CI_TEST_TAG_OVERRIDE }}" >> "$GITHUB_OUTPUT"
         else
-            LATEST_TAG=$(curl -s \
-              "https://api.github.com/repos/NcStudios/VulkanCI/releases/latest" \
-              | jq -r .tag_name)
-            echo "vk-ci-action-tag=$LATEST_TAG" >> "$GITHUB_OUTPUT"
-            echo "Using latest tag: $LATEST_TAG"
+          echo "Using artifacts from release: $ACTION_TAG"
+          echo "vk-ci-action-tag=$ACTION_TAG" >> "$GITHUB_OUTPUT"
         fi
 
     - name: Download Artifacts
