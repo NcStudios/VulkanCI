@@ -23,6 +23,8 @@ jobs:
         uses: ./
         with:
           sdkVersion: '${{ matrix.sdkVersion }}'
+        env:
+          VK_CI_TEST_TAG_OVERRIDE: ${{ vars.TEST_TAG }}
 
       - name: Test Environment
         shell: bash
