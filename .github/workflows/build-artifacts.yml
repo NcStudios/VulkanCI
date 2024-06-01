@@ -48,7 +48,7 @@ jobs:
           fi
 
           mkdir swiftshader
-          cp Swiftshader/build_out/$OUT_DIR/${{ matrix.swiftshaderLibName }} /swiftshader
+          cp Swiftshader/build_out/$OUT_DIR/${{ matrix.swiftshaderLibName }} swiftshader
           cp Swiftshader/LICENSE.txt swiftshader
 
       - name: Upload Artifacts
