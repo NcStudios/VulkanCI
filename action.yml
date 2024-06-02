@@ -1,5 +1,8 @@
 name: 'VulkanCI'
 description: 'Set up CI environment for testing Vulkan apps'
+branding:
+  icon: 'box'
+  color: 'red'
 inputs:
   sdkVersion:
     description: 'Requested VulkanSDK version'
