@@ -59,7 +59,7 @@ runs:
         tag: '${{ steps.artifacts.outputs.vk-ci-action-tag }}'
         filename: '${{ steps.artifacts.outputs.vk-ci-sdk-artifact-name}}'
         out-file-path: '${{ inputs.installPath }}/VulkanSDK'
-        preRelease: ${{ ${{ steps.artifacts.outputs['vk-ci-use-prerelease'] }} == 'true' }}
+        preRelease: ${{ steps.artifacts.outputs['vk-ci-use-prerelease'] == 'true' }}
         extract: true
 
     - name: Download Swiftshader Artifact
