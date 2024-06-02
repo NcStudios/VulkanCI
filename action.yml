@@ -72,7 +72,8 @@ runs:
       id: setup-environment
       shell: bash
       run: |
-        INSTALL_PATH="${${{ inputs.installPath }}//\\//}"
+        INSTALL_PATH="${{ inputs.installPath }}"
+        INSTALL_PATH="${INSTALL_PATH//\\//}"
         SDK_INSTALL_PATH="$INSTALL_PATH/VulkanSDK/${{ inputs.sdkVersion }}"
         SWIFTSHADER_INSTALL_PATH="$INSTALL_PATH/swiftshader"
 
