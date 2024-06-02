@@ -44,9 +44,11 @@ runs:
 
         if [ -n "${{ env.VK_CI_TEST_TAG_OVERRIDE }}" ]; then
           echo "Test run detected. Using artifacts from release: ${{ env.VK_CI_TEST_TAG_OVERRIDE }}"
+          echo "vk-ci-use-prerelease=true" >> "$GITHUB_OUTPUT"
           echo "vk-ci-action-tag=${{ env.VK_CI_TEST_TAG_OVERRIDE }}" >> "$GITHUB_OUTPUT"
         else
           echo "Using artifacts from release: $ACTION_TAG"
+          echo "vk-ci-use-prerelease=false" >> "$GITHUB_OUTPUT"
           echo "vk-ci-action-tag=$ACTION_TAG" >> "$GITHUB_OUTPUT"
         fi
 
@@ -57,6 +59,7 @@ runs:
         tag: '${{ steps.artifacts.outputs.vk-ci-action-tag }}'
         filename: '${{ steps.artifacts.outputs.vk-ci-sdk-artifact-name}}'
         out-file-path: '${{ inputs.installPath }}/VulkanSDK'
+        preRelease: ${{ steps.artifacts.outputs.vk-ci-useprerelease }}
         extract: true
 
     - name: Download Swiftshader Artifact
