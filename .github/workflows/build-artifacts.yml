@@ -20,19 +20,6 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - name: Set up environment variables
-        shell: bash
-        run: |
-          echo "ARTIFACT_NAME=swiftshader-${{ matrix.os }}-x64" >> $GITHUB_ENV
-
-          if [[ "${{ runner.os }}" == "Windows" ]]; then
-            echo "BUILD_SUBDIR=Windows" >> $GITHUB_ENV
-          elif [[ "${{ runner.os }}" == "Linux" ]]; then
-            echo "BUILD_SUBDIR=Linux" >> $GITHUB_ENV
-          elif [[ "${{ runner.os }}" == "macOS" ]]; then
-            echo "BUILD_SUBDIR=Darwin" >> $GITHUB_ENV
-          fi
-
       - name: Checkout Swiftshader
         uses: actions/checkout@v4
         with:
@@ -47,13 +34,23 @@ jobs:
           cmake -S Swiftshader -B Swiftshader/build_out -DCMAKE_BUILD_TYPE=Release
           cmake --build Swiftshader/build_out --target vk_swiftshader --config Release --parallel 4
 
+          if [[ "${{ runner.os }}" == "Windows" ]]; then
+            OUT_DIR=Windows
+          elif [[ "${{ runner.os }}" == "Linux" ]]; then
+            OUT_DIR=Linux
+          elif [[ "${{ runner.os }}" == "macOS" ]]; then
+            OUT_DIR=Darwin
+          fi
+
+          mkdir swiftshader_artifacts
+          cp Swiftshader/build_out/$OUT_DIR/${{ matrix.swiftshaderLibName }} swiftshader_artifacts
+          cp Swiftshader/LICENSE.txt swiftshader_artifacts
+
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.ARTIFACT_NAME }}
-          path: |
-            Swiftshader/build_out/${{ env.BUILD_SUBDIR }}/${{ matrix.swiftshaderLibName }}
-            Swiftshader/LICENSE.txt
+          name: swiftshader-${{ matrix.os }}-x64
+          path: swiftshader_artifacts
 
   build-sdk:
     strategy:
@@ -79,7 +76,7 @@ jobs:
         shell: bash
         run: |
           SDK_VERSION=$(echo "${{ matrix.sdkTag }}" | sed -E 's/[^0-9]*([0-9]+\.[0-9]+\.[0-9]+(\.[0-9]+)?).*/\1/')
-          echo "ARTIFACT_NAME=vulkanCI-$SDK_VERSION-${{ matrix.os }}-x64" >> $GITHUB_ENV
+          echo "ARTIFACT_NAME=vulkanSDK-$SDK_VERSION-${{ matrix.os }}-x64" >> $GITHUB_ENV
 
           ROOT_PATH='${{ github.workspace }}'
           echo "SDK_PATH=${ROOT_PATH//\\//}/VulkanSDK/$SDK_VERSION" >> $GITHUB_ENV
