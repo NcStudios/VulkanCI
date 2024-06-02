@@ -2,7 +2,7 @@
 
 [![test](https://github.com/NcStudios/VulkanCI/actions/workflows/test.yml/badge.svg)](https://github.com/NcStudios/VulkanCI/actions/workflows/test.yml)
 
-This action enables running Vulkan applications on GitHub-hosted runners. It downloads a pre-built package containing the Vulkan headers, loader, and validation layers as well as [SwiftShader](https://github.com/google/swiftshader) (a software-only Vulkan implementation), and sets up the GitHub environment with the necessary variables. Currently, the environment setup is intended to be minimal, so additional VulkanSDK components are not provided.
+This action performs minimal setup to enable building and running Vulkan applications on GitHub-hosted runners. It installs the Vulkan headers, loader, and validation layers, as well as [SwiftShader](https://github.com/google/swiftshader) (a software-only Vulkan implementation), and sets up the GitHub environment with the necessary variables.
 
 ## Usage
 ```yaml
@@ -19,7 +19,7 @@ This action enables running Vulkan applications on GitHub-hosted runners. It dow
 ```
 
 ## Outputs
-- `vulkan-sdk-install-path` Path where the VulkanSDK was installed
+- `vulkan-install-path` Path where the VulkanSDK was installed
 - `swiftshader-install-path` Path where SwiftShader was installed
 
 Variables can be accessed through the step outputs: `${{ steps.<id>.outputs.swiftshader-install-path }}`.
@@ -53,4 +53,8 @@ The intention is to support all standard GitHub-hosted runners. Tests currently 
 - `macOS-14`
 
 ## Known Limitations
+Due to significant build times, pre-built artifacts are downloaded from the corresponding release of this action. This requires the action version to be specified as a tag - targeting a SHA will not work.
+
+The Vulkan loader is built with `LOADER_USE_UNSAFE_FILE_SEARCH=ON` to more reliably allow file discovery through environment variables. To state the obvious, the artifacts provided here are not intended for use outside of testing environments.
+
 Currently, all macOS binaries are built for x86_64.
