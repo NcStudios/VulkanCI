@@ -26,15 +26,15 @@ runs:
         ACTION_TAG: ${{ github.action_ref }}
       run: |
         if [[ "${{ runner.os }}" == "Windows" ]]; then
-          echo "vk-ci-sdk-artifact-name=vulkanCI-${{ inputs.sdkVersion }}-windows-2022-x64.zip" >> "$GITHUB_OUTPUT"
+          echo "vk-ci-sdk-artifact-name=vulkanSDK-${{ inputs.sdkVersion }}-windows-2022-x64.zip" >> "$GITHUB_OUTPUT"
           echo "vk-ci-swiftshader-artifact-name=swiftshader-windows-2022-x64.zip" >> "$GITHUB_OUTPUT"
           echo "vk-ci-swiftshader-lib-name=vk_swiftshader.dll" >> "$GITHUB_OUTPUT"
         elif [[ "${{ runner.os }}" == "Linux" ]]; then
-          echo "vk-ci-sdk-artifact-name=vulkanCI-${{ inputs.sdkVersion }}-ubuntu-20.04-x64.zip" >> "$GITHUB_OUTPUT"
+          echo "vk-ci-sdk-artifact-name=vulkanSDK-${{ inputs.sdkVersion }}-ubuntu-20.04-x64.zip" >> "$GITHUB_OUTPUT"
           echo "vk-ci-swiftshader-artifact-name=swiftshader-ubuntu-20.04-x64.zip" >> "$GITHUB_OUTPUT"
           echo "vk-ci-swiftshader-lib-name=libvk_swiftshader.so" >> "$GITHUB_OUTPUT"
         elif [[ "${{ runner.os }}" == "macOS" ]]; then
-          echo "vk-ci-artifact-name=vulkanCI-${{ inputs.sdkVersion }}-macOS-12-x64.zip" >> "$GITHUB_OUTPUT"
+          echo "vk-ci-sdk-artifact-name=vulkanSDK-${{ inputs.sdkVersion }}-macOS-12-x64.zip" >> "$GITHUB_OUTPUT"
           echo "vk-ci-swiftshader-artifact-name=swiftshader-macOS-12-x64.zip" >> "$GITHUB_OUTPUT"
           echo "vk-ci-swiftshader-lib-name=libvk_swiftshader.dylib" >> "$GITHUB_OUTPUT"
         else
