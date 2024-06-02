@@ -52,7 +52,7 @@ jobs:
         with:
           name: ${{ env.ARTIFACT_NAME }}
           path: |
-            Swiftshader/build_out/${{ env.BUILD_SUBDIR }}/${{ env.ARTIFACT_NAME }}
+            Swiftshader/build_out/${{ env.BUILD_SUBDIR }}/${{ matrix.swiftshaderLibName }}
             Swiftshader/LICENSE.txt
 
   build-sdk:
