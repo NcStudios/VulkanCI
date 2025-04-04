@@ -7,7 +7,7 @@ inputs:
   sdkVersion:
     description: 'Requested VulkanSDK version'
     required: false
-    default: 1.3.283.0
+    default: 1.4.309.0
   installPath:
     description: 'Directory to install to'
     required: false
