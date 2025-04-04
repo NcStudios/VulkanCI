@@ -7,13 +7,13 @@ jobs:
   build-swiftshader:
     strategy:
       matrix:
-        os: [windows-2022, ubuntu-20.04, macOS-12]
+        os: [windows-2022, ubuntu-20.04, macOS-13]
         include:
           - os: windows-2022
             swiftshaderLibName: vk_swiftshader.dll
           - os: ubuntu-20.04
             swiftshaderLibName: libvk_swiftshader.so
-          - os: macOS-12
+          - os: macOS-13
             swiftshaderLibName: libvk_swiftshader.dylib
 
     name: 'swiftshader-${{ matrix.os }}'
@@ -55,7 +55,7 @@ jobs:
   build-sdk:
     strategy:
       matrix:
-        os: [windows-2022, ubuntu-20.04, macOS-12]
+        os: [windows-2022, ubuntu-20.04, macOS-13]
         sdkTag: ['vulkan-sdk-1.4.309.0', 'vulkan-sdk-1.3.283.0', 'vulkan-sdk-1.3.280.0', 'vulkan-sdk-1.3.275.0', 'sdk-1.3.261.1']
 
     name: '${{ matrix.sdkTag }}-${{ matrix.os }}'

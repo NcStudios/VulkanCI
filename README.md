@@ -49,9 +49,9 @@ The intention is to support all standard GitHub-hosted runners. Tests currently 
 - `ubuntu20.04`
 - `ubuntu22.04`
 - `ubuntu24.04`
-- `macOS-12`
 - `macOS-13`
 - `macOS-14`
+- `macOS-15`
 
 ## Known Limitations
 Due to significant build times, pre-built artifacts are downloaded from the corresponding release of this action. This requires the action version to be specified as a tag - targeting a SHA will not work.
