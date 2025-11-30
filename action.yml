@@ -38,7 +38,7 @@ runs:
           echo "vk-ci-swiftshader-lib-name=libvk_swiftshader.so" >> "$GITHUB_OUTPUT"
         elif [[ "${{ runner.os }}" == "macOS" ]]; then
           echo "vk-ci-sdk-artifact-name=vulkanSDK-${{ inputs.sdkVersion }}-macOS-15-x64.zip" >> "$GITHUB_OUTPUT"
-          echo "vk-ci-swiftshader-artifact-name=swiftshader-macOS-15-x64.zip" >> "$GITHUB_OUTPUT"
+          echo "vk-ci-swiftshader-artifact-name=swiftshader-macos-15-x86_64.zip" >> "$GITHUB_OUTPUT"
           echo "vk-ci-swiftshader-lib-name=libvk_swiftshader.dylib" >> "$GITHUB_OUTPUT"
         else
           echo "Unsupported OS: ${{ runner.os }}"
