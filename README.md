@@ -44,13 +44,8 @@ In addition to the output variables, the action updates the following contexts t
 
 ## Supported Runners
 The intention is to support all standard GitHub-hosted runners. Tests currently run on:
-- `windows-2019`
-- `windows-2022`
-- `ubuntu20.04`
-- `ubuntu22.04`
+- `windows-2025`
 - `ubuntu24.04`
-- `macOS-13`
-- `macOS-14`
 - `macOS-15`
 
 ## Known Limitations
