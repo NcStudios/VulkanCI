@@ -7,7 +7,7 @@ jobs:
   build-swiftshader:
     strategy:
       matrix:
-        os: [windows-2025, ubuntu-24.04, macOS-15]
+        os: [windows-2025, ubuntu-24.04, macOS-15-intel]
         include:
           - os: windows-2025
             swiftshaderLibName: vk_swiftshader.dll
