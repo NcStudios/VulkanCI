@@ -44,7 +44,7 @@ In addition to the output variables, the action updates the following contexts t
 - 1.3.275.0
 
 ## Supported Runners
-The intention is to support all standard GitHub-hosted runners. Tests currently run on:
+Tests currently run on:
 - `windows-2025`
 - `ubuntu24.04`
 - `macOS-15`
