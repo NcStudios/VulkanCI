@@ -45,13 +45,24 @@ In addition to the output variables, the action updates the following contexts t
 
 ## Supported Runners
 Tests currently run on:
-- `windows-2025`
-- `ubuntu24.04`
-- `macOS-15`
+- `windows-2025` (x64)
+- `ubuntu-24.04` (x64)
+- `macOS-15` (ARM64)
+- `macOS-15-intel` (x86_64)
+
+macOS binaries are available for both ARM64 (Apple Silicon) and x86_64 (Intel). The action automatically detects the runner architecture and downloads the appropriate artifacts.
+
+  | Runner         | Architecture | SDK Artifact                             | SwiftShader Artifact             |
+  |----------------|--------------|------------------------------------------|----------------------------------|
+  | windows-2025   | x64          | vulkanSDK-{version}-windows-x64.zip      | swiftshader-windows-x64.zip      |
+  | ubuntu-24.04   | x64          | vulkanSDK-{version}-ubuntu-24.04-x64.zip | swiftshader-ubuntu-24.04-x64.zip |
+  | macOS-15       | ARM64        | vulkanSDK-{version}-macos-15-arm64.zip   | swiftshader-macos-15-arm64.zip   |
+  | macOS-15-intel | x86_64       | vulkanSDK-{version}-macos-15-x86_64.zip  | swiftshader-macos-15-x86_64.zip  |
 
 ## Known Limitations
 Due to significant build times, pre-built artifacts are downloaded from the corresponding release of this action. This requires the action version to be specified as a tag - targeting a SHA will not work.
 
 The Vulkan loader is built with `LOADER_USE_UNSAFE_FILE_SEARCH=ON` to more reliably allow file discovery through environment variables. To state the obvious, the artifacts provided here are not intended for use outside of testing environments.
 
-Currently, all macOS binaries are built for x86_64.
+
+
