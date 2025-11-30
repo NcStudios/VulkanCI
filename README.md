@@ -10,8 +10,8 @@ This action performs minimal setup to enable building and running Vulkan applica
   with:
     # VulkanSDK version to use
     # Must be a supported version
-    # The default value is 1.4.309.0
-    sdkVersion: 1.4.309.0
+    # The default value is 1.4.328.0
+    sdkVersion: 1.4.328.0
 
     # Optional path to installation path
     # The default value is '${{ github.workspace }}`
@@ -36,11 +36,12 @@ In addition to the output variables, the action updates the following contexts t
   - `$VULKAN_SDK/bin` (Windows only)
 
 ## Supported VulkanSDK Versions
+- 1.4.328.0
+- 1.4.321.0
 - 1.4.309.0
 - 1.3.283.0
 - 1.3.280.0
 - 1.3.275.0
-- 1.3.261.1
 
 ## Supported Runners
 The intention is to support all standard GitHub-hosted runners. Tests currently run on:
