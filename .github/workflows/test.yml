@@ -69,6 +69,12 @@ jobs:
       - name: Run Test
         shell: bash
         run: |
-          cmake -S test -B build -DVKCI_API_VERSION="${{ matrix.sdkVersion }}" -DCMAKE_BUILD_TYPE=Release -DCMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE="${{ github.workspace }}"
+          if [[ "${{ matrix.os }}" == "macOS-15-intel" ]]; then
+            cmake -S test -B build -DVKCI_API_VERSION="${{ matrix.sdkVersion }}" -DCMAKE_BUILD_TYPE=Release -DCMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE="${{ github.workspace }}" -DCMAKE_OSX_ARCHITECTURES=x86_64
+          elif [[ "${{ matrix.os }}" == "macOS-15" ]]; then
+            cmake -S test -B build -DVKCI_API_VERSION="${{ matrix.sdkVersion }}" -DCMAKE_BUILD_TYPE=Release -DCMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE="${{ github.workspace }}" -DCMAKE_OSX_ARCHITECTURES=arm64
+          else
+            cmake -S test -B build -DVKCI_API_VERSION="${{ matrix.sdkVersion }}" -DCMAKE_BUILD_TYPE=Release -DCMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE="${{ github.workspace }}"
+          fi
           cmake --build build --config Release
           ./vulkan-ci-test
