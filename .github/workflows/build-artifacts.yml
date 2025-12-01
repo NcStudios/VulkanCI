@@ -134,11 +134,13 @@ jobs:
 
       - name: Build Vulkan-Loader
         shell: bash
+        env:
+          VCPKG_ROOT: ""
         run: |
           if [[ "${{ matrix.os }}" == "macOS-15-intel" ]]; then
-            cmake -S Vulkan-Loader -B Vulkan-Loader/build -DCMAKE_PREFIX_PATH=${{ env.SDK_PATH }} -DVULKAN_HEADERS_INSTALL_DIR=${{ env.SDK_PATH }} -DLOADER_USE_UNSAFE_FILE_SEARCH=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=x86_64
+            cmake -S Vulkan-Loader -B Vulkan-Loader/build -DCMAKE_PREFIX_PATH=${{ env.SDK_PATH }} -DVulkanHeaders_DIR=${{ env.SDK_PATH }}/share/cmake/VulkanHeaders -DVULKAN_HEADERS_INSTALL_DIR=${{ env.SDK_PATH }} -DLOADER_USE_UNSAFE_FILE_SEARCH=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=x86_64
           else
-            cmake -S Vulkan-Loader -B Vulkan-Loader/build -DCMAKE_PREFIX_PATH=${{ env.SDK_PATH }} -DVULKAN_HEADERS_INSTALL_DIR=${{ env.SDK_PATH }} -DLOADER_USE_UNSAFE_FILE_SEARCH=ON -DCMAKE_BUILD_TYPE=Release
+            cmake -S Vulkan-Loader -B Vulkan-Loader/build -DCMAKE_PREFIX_PATH=${{ env.SDK_PATH }} -DVulkanHeaders_DIR=${{ env.SDK_PATH }}/share/cmake/VulkanHeaders -DVULKAN_HEADERS_INSTALL_DIR=${{ env.SDK_PATH }} -DLOADER_USE_UNSAFE_FILE_SEARCH=ON -DCMAKE_BUILD_TYPE=Release
           fi
           cmake --build Vulkan-Loader/build --config Release --parallel 4
           cmake --install Vulkan-Loader/build --prefix ${{ env.SDK_PATH }}
