@@ -110,7 +110,9 @@ jobs:
           echo "ARTIFACT_NAME=$ARTIFACT_NAME" >> $GITHUB_ENV
 
           ROOT_PATH='${{ github.workspace }}'
-          echo "SDK_PATH=${ROOT_PATH//\\//}/VulkanSDK/$SDK_VERSION" >> $GITHUB_ENV
+          SDK_PATH_VALUE="${ROOT_PATH//\\//}/VulkanSDK/$SDK_VERSION"
+          echo "SDK_PATH=$SDK_PATH_VALUE" >> $GITHUB_ENV
+          echo "VULKAN_SDK=$SDK_PATH_VALUE" >> $GITHUB_ENV
 
       - name: Checkout Vulkan-Headers
         uses: actions/checkout@v4
@@ -134,6 +136,9 @@ jobs:
 
       - name: Build Vulkan-Loader
         shell: bash
+        env:
+          # Disable vcpkg integration to prevent it from providing headers
+          VCPKG_INSTALLATION_ROOT: ""
         run: |
           if [[ "${{ matrix.os }}" == "macOS-15-intel" ]]; then
             cmake -S Vulkan-Loader -B Vulkan-Loader/build -DCMAKE_TOOLCHAIN_FILE="" -DCMAKE_PREFIX_PATH=${{ env.SDK_PATH }} -DVulkanHeaders_DIR=${{ env.SDK_PATH }}/share/cmake/VulkanHeaders -DVULKAN_HEADERS_INSTALL_DIR=${{ env.SDK_PATH }} -DLOADER_USE_UNSAFE_FILE_SEARCH=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=x86_64
