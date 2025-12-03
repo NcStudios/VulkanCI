@@ -10,8 +10,8 @@ This action performs minimal setup to enable building and running Vulkan applica
   with:
     # VulkanSDK version to use
     # Must be a supported version
-    # The default value is 1.4.309.0
-    sdkVersion: 1.4.309.0
+    # The default value is 1.4.328.0
+    sdkVersion: 1.4.328.0
 
     # Optional path to installation path
     # The default value is '${{ github.workspace }}`
@@ -36,26 +36,33 @@ In addition to the output variables, the action updates the following contexts t
   - `$VULKAN_SDK/bin` (Windows only)
 
 ## Supported VulkanSDK Versions
+- 1.4.328.0
+- 1.4.321.0
 - 1.4.309.0
 - 1.3.283.0
 - 1.3.280.0
 - 1.3.275.0
-- 1.3.261.1
 
 ## Supported Runners
-The intention is to support all standard GitHub-hosted runners. Tests currently run on:
-- `windows-2019`
-- `windows-2022`
-- `ubuntu20.04`
-- `ubuntu22.04`
-- `ubuntu24.04`
-- `macOS-13`
-- `macOS-14`
-- `macOS-15`
+Tests currently run on:
+- `windows-2025` (x64)
+- `ubuntu-24.04` (x64)
+- `macOS-15` (ARM64)
+- `macOS-15-intel` (x86_64)
+
+macOS binaries are available for both ARM64 (Apple Silicon) and x86_64 (Intel). The action automatically detects the runner architecture and downloads the appropriate artifacts.
+
+  | Runner         | Architecture | SDK Artifact                             | SwiftShader Artifact             |
+  |----------------|--------------|------------------------------------------|----------------------------------|
+  | windows-2025   | x64          | vulkanSDK-{version}-windows-x64.zip      | swiftshader-windows-x64.zip      |
+  | ubuntu-24.04   | x64          | vulkanSDK-{version}-ubuntu-24.04-x64.zip | swiftshader-ubuntu-24.04-x64.zip |
+  | macOS-15       | ARM64        | vulkanSDK-{version}-macos-15-arm64.zip   | swiftshader-macos-15-arm64.zip   |
+  | macOS-15-intel | x86_64       | vulkanSDK-{version}-macos-15-x86_64.zip  | swiftshader-macos-15-x86_64.zip  |
 
 ## Known Limitations
 Due to significant build times, pre-built artifacts are downloaded from the corresponding release of this action. This requires the action version to be specified as a tag - targeting a SHA will not work.
 
 The Vulkan loader is built with `LOADER_USE_UNSAFE_FILE_SEARCH=ON` to more reliably allow file discovery through environment variables. To state the obvious, the artifacts provided here are not intended for use outside of testing environments.
 
-Currently, all macOS binaries are built for x86_64.
+
+

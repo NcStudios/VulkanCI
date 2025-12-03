@@ -7,13 +7,15 @@ jobs:
   build-swiftshader:
     strategy:
       matrix:
-        os: [windows-2022, ubuntu-20.04, macOS-13]
+        os: [windows-2025, ubuntu-24.04, macOS-15, macOS-15-intel]
         include:
-          - os: windows-2022
+          - os: windows-2025
             swiftshaderLibName: vk_swiftshader.dll
-          - os: ubuntu-20.04
+          - os: ubuntu-24.04
             swiftshaderLibName: libvk_swiftshader.so
-          - os: macOS-13
+          - os: macOS-15
+            swiftshaderLibName: libvk_swiftshader.dylib
+          - os: macOS-15-intel
             swiftshaderLibName: libvk_swiftshader.dylib
 
     name: 'swiftshader-${{ matrix.os }}'
@@ -31,7 +33,11 @@ jobs:
       - name: Build Swiftshader
         shell: bash
         run: |
-          cmake -S Swiftshader -B Swiftshader/build_out -DCMAKE_BUILD_TYPE=Release
+          if [[ "${{ matrix.os }}" == "macOS-15-intel" ]]; then
+            cmake -S Swiftshader -B Swiftshader/build_out -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=x86_64
+          else
+            cmake -S Swiftshader -B Swiftshader/build_out -DCMAKE_BUILD_TYPE=Release
+          fi
           cmake --build Swiftshader/build_out --target vk_swiftshader --config Release --parallel 4
 
           if [[ "${{ runner.os }}" == "Windows" ]]; then
@@ -46,17 +52,31 @@ jobs:
           cp Swiftshader/build_out/$OUT_DIR/${{ matrix.swiftshaderLibName }} swiftshader_artifacts
           cp Swiftshader/LICENSE.txt swiftshader_artifacts
 
+      - name: Set Artifact Name
+        id: set-name
+        shell: bash
+        run: |
+          if [[ "${{ matrix.os }}" == "windows-2025" ]]; then
+            echo "artifact-name=swiftshader-windows-x64" >> "$GITHUB_OUTPUT"
+          elif [[ "${{ matrix.os }}" == "ubuntu-24.04" ]]; then
+            echo "artifact-name=swiftshader-ubuntu-24.04-x64" >> "$GITHUB_OUTPUT"
+          elif [[ "${{ matrix.os }}" == "macOS-15" ]]; then
+            echo "artifact-name=swiftshader-macos-15-arm64" >> "$GITHUB_OUTPUT"
+          elif [[ "${{ matrix.os }}" == "macOS-15-intel" ]]; then
+            echo "artifact-name=swiftshader-macos-15-x86_64" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: swiftshader-${{ matrix.os }}-x64
+          name: ${{ steps.set-name.outputs.artifact-name }}
           path: swiftshader_artifacts
 
   build-sdk:
     strategy:
       matrix:
-        os: [windows-2022, ubuntu-20.04, macOS-13]
-        sdkTag: ['vulkan-sdk-1.4.321.0', 'vulkan-sdk-1.4.309.0', 'vulkan-sdk-1.3.283.0', 'vulkan-sdk-1.3.280.0', 'vulkan-sdk-1.3.275.0', 'sdk-1.3.261.1']
+        os: [windows-2025, ubuntu-24.04, macOS-15, macOS-15-intel]
+        sdkTag: ['vulkan-sdk-1.4.328.0', 'vulkan-sdk-1.4.321.0', 'vulkan-sdk-1.4.309.0', 'vulkan-sdk-1.3.283.0', 'vulkan-sdk-1.3.280.0', 'vulkan-sdk-1.3.275.0', 'sdk-1.3.261.1']
 
     name: '${{ matrix.sdkTag }}-${{ matrix.os }}'
     runs-on: ${{ matrix.os }}
@@ -76,10 +96,23 @@ jobs:
         shell: bash
         run: |
           SDK_VERSION=$(echo "${{ matrix.sdkTag }}" | sed -E 's/[^0-9]*([0-9]+\.[0-9]+\.[0-9]+(\.[0-9]+)?).*/\1/')
-          echo "ARTIFACT_NAME=vulkanSDK-$SDK_VERSION-${{ matrix.os }}-x64" >> $GITHUB_ENV
+
+          if [[ "${{ matrix.os }}" == "windows-2025" ]]; then
+            ARTIFACT_NAME="vulkanSDK-$SDK_VERSION-windows-x64"
+          elif [[ "${{ matrix.os }}" == "ubuntu-24.04" ]]; then
+            ARTIFACT_NAME="vulkanSDK-$SDK_VERSION-ubuntu-24.04-x64"
+          elif [[ "${{ matrix.os }}" == "macOS-15" ]]; then
+            ARTIFACT_NAME="vulkanSDK-$SDK_VERSION-macos-15-arm64"
+          elif [[ "${{ matrix.os }}" == "macOS-15-intel" ]]; then
+            ARTIFACT_NAME="vulkanSDK-$SDK_VERSION-macos-15-x86_64"
+          fi
+
+          echo "ARTIFACT_NAME=$ARTIFACT_NAME" >> $GITHUB_ENV
 
           ROOT_PATH='${{ github.workspace }}'
-          echo "SDK_PATH=${ROOT_PATH//\\//}/VulkanSDK/$SDK_VERSION" >> $GITHUB_ENV
+          SDK_PATH_VALUE="${ROOT_PATH//\\//}/VulkanSDK/$SDK_VERSION"
+          echo "SDK_PATH=$SDK_PATH_VALUE" >> $GITHUB_ENV
+          echo "VULKAN_SDK=$SDK_PATH_VALUE" >> $GITHUB_ENV
 
       - name: Checkout Vulkan-Headers
         uses: actions/checkout@v4
@@ -103,8 +136,15 @@ jobs:
 
       - name: Build Vulkan-Loader
         shell: bash
+        env:
+          # Disable vcpkg integration to prevent it from providing headers
+          VCPKG_INSTALLATION_ROOT: ""
         run: |
-          cmake -S Vulkan-Loader -B Vulkan-Loader/build -DVULKAN_HEADERS_INSTALL_DIR=${{ env.SDK_PATH }} -DLOADER_USE_UNSAFE_FILE_SEARCH=ON -DCMAKE_BUILD_TYPE=Release
+          if [[ "${{ matrix.os }}" == "macOS-15-intel" ]]; then
+            cmake -S Vulkan-Loader -B Vulkan-Loader/build -DCMAKE_TOOLCHAIN_FILE="" -DCMAKE_PREFIX_PATH=${{ env.SDK_PATH }} -DVulkanHeaders_DIR=${{ env.SDK_PATH }}/share/cmake/VulkanHeaders -DVULKAN_HEADERS_INSTALL_DIR=${{ env.SDK_PATH }} -DLOADER_USE_UNSAFE_FILE_SEARCH=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=x86_64
+          else
+            cmake -S Vulkan-Loader -B Vulkan-Loader/build -DCMAKE_TOOLCHAIN_FILE="" -DCMAKE_PREFIX_PATH=${{ env.SDK_PATH }} -DVulkanHeaders_DIR=${{ env.SDK_PATH }}/share/cmake/VulkanHeaders -DVULKAN_HEADERS_INSTALL_DIR=${{ env.SDK_PATH }} -DLOADER_USE_UNSAFE_FILE_SEARCH=ON -DCMAKE_BUILD_TYPE=Release
+          fi
           cmake --build Vulkan-Loader/build --config Release --parallel 4
           cmake --install Vulkan-Loader/build --prefix ${{ env.SDK_PATH }}
 
@@ -118,7 +158,11 @@ jobs:
       - name: Build Vulkan-ValidationLayers
         shell: bash
         run: |
-          cmake -S Vulkan-ValidationLayers -B Vulkan-ValidationLayers/build -DUPDATE_DEPS=ON -DCMAKE_BUILD_TYPE=Release
+          if [[ "${{ matrix.os }}" == "macOS-15-intel" ]]; then
+            cmake -S Vulkan-ValidationLayers -B Vulkan-ValidationLayers/build -DUPDATE_DEPS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=x86_64
+          else
+            cmake -S Vulkan-ValidationLayers -B Vulkan-ValidationLayers/build -DUPDATE_DEPS=ON -DCMAKE_BUILD_TYPE=Release
+          fi
           cmake --build Vulkan-ValidationLayers/build --config Release --parallel 4
           cmake --install Vulkan-ValidationLayers/build --prefix ${{ env.SDK_PATH }}
           cp Vulkan-ValidationLayers/LICENSE.txt ${{ env.SDK_PATH }}
